@@ -1,0 +1,88 @@
+/* =====================================================
+   Global Reset & Base — Rameshwar Imitation
+   ===================================================== */
+:root {
+  --accent: #3e97b9;
+  --bg: #eaf4f8;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --text: #1a2f3e;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* shared table used across pages */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f0f4f7;
+  text-align: left;
+  font-size: 13.5px;
+}
+
+.table th {
+  background: #f8fbfc;
+  font-weight: 700;
+  color: #6a8090;
+  font-size: 12.5px;
+}
+
+/* shared form helpers */
+.form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.form input,
+.form select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #dde4ea;
+  outline: none;
+  font-size: 13px;
+}
+
+.form button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+}

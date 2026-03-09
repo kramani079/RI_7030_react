@@ -1,0 +1,495 @@
+/* =====================================================
+   Inventory Page — Rameshwar Imitation Factory Mgmt
+   ===================================================== */
+
+.inv-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    padding-bottom: 40px;
+}
+
+/* Header */
+.inv-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.inv-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a2f3e;
+}
+
+.btn-add-inv {
+    background: #3e97b9;
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(62, 151, 185, 0.25);
+    transition: background 0.15s;
+}
+
+.btn-add-inv:hover {
+    background: #2d85a5;
+}
+
+/* Search */
+.inv-search-wrap {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #dde4ea;
+    border-radius: 8px;
+    padding: 0 14px;
+    box-shadow: 0 1px 4px rgba(30, 74, 98, 0.06);
+}
+
+.inv-search-icon {
+    font-size: 15px;
+    margin-right: 8px;
+    color: #7a919e;
+}
+
+.inv-search {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 0;
+    font-size: 13.5px;
+    color: #1a2f3e;
+    background: transparent;
+}
+
+.inv-search::placeholder {
+    color: #a0b0ba;
+}
+
+/* Table */
+.inv-table-wrap {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(30, 74, 98, 0.07);
+    overflow: hidden;
+}
+
+.inv-tbl {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inv-tbl th {
+    padding: 11px 14px;
+    background: #f6f9fb;
+    border-bottom: 1.5px solid #e8eef2;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a7080;
+    text-align: left;
+}
+
+.inv-tbl td {
+    padding: 13px 14px;
+    font-size: 13.5px;
+    color: #1a2f3e;
+    border-bottom: 1px solid #f0f4f7;
+    vertical-align: middle;
+}
+
+.inv-tbl tr:last-child td {
+    border-bottom: none;
+}
+
+.inv-tbl tr:hover td {
+    background: #fafcfe;
+}
+
+/* Cells */
+.inv-id {
+    font-weight: 700;
+    color: #1a2f3e;
+}
+
+.inv-name {
+    font-weight: 600;
+    color: #3e97b9;
+}
+
+/* Stock */
+.inv-stock {
+    font-weight: 600;
+}
+
+.inv-stock.low {
+    color: #e05c5c;
+}
+
+/* Production dots */
+.inv-prod-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.inv-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: transform 0.12s, box-shadow 0.12s;
+    cursor: pointer;
+}
+
+.inv-dot.done {
+    background: #2dab6f;
+    color: #fff;
+}
+
+.inv-dot.pending {
+    background: #e0e8ed;
+    color: #7a919e;
+}
+
+.inv-dot:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 3px rgba(62, 151, 185, 0.3);
+}
+
+
+/* Legend */
+.inv-legend {
+    font-size: 12.5px;
+    color: #7a919e;
+    padding: 6px 4px 0;
+}
+
+/* Complete */
+.inv-complete {
+    font-weight: 700;
+    font-size: 13.5px;
+}
+
+/* Actions */
+.inv-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.inv-edit {
+    padding: 5px 14px;
+    border-radius: 5px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1.5px solid #c5d0d8;
+    color: #5a7080;
+    background: transparent;
+    cursor: pointer;
+}
+
+.inv-edit:hover {
+    background: #f3f6f8;
+}
+
+.inv-del {
+    padding: 5px 14px;
+    border-radius: 5px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1.5px solid #e05c5c;
+    color: #e05c5c;
+    background: transparent;
+    cursor: pointer;
+}
+
+.inv-del:hover {
+    background: #fff0f0;
+}
+
+/* Legend */
+.inv-legend {
+    font-size: 12.5px;
+    color: #7a919e;
+    padding: 6px 4px 0;
+}
+
+.leg-done {
+    color: #2dab6f;
+    font-size: 16px;
+}
+
+.leg-pending {
+    color: #c0cdd5;
+    font-size: 16px;
+}
+
+/* FAB */
+.fab-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #3e97b9;
+    color: #fff;
+    font-size: 26px;
+    border: none;
+    box-shadow: 0 6px 20px rgba(62, 151, 185, 0.35);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+    z-index: 200;
+}
+
+.fab-btn:hover {
+    background: #2d85a5;
+    transform: scale(1.08);
+}
+
+/* Modal — shared with Orders/Employees */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 25, 35, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    backdrop-filter: blur(2px);
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 30px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a2f3e;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #7a919e;
+    cursor: pointer;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modal-form label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #5a7080;
+    margin-top: 10px;
+}
+
+.modal-form input,
+.modal-select {
+    padding: 9px 12px;
+    border: 1.5px solid #dde4ea;
+    border-radius: 7px;
+    font-size: 13.5px;
+    outline: none;
+    color: #1a2f3e;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modal-form input:focus,
+.modal-select:focus {
+    border-color: #3e97b9;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+.modal-cancel {
+    padding: 9px 20px;
+    border-radius: 7px;
+    border: 1.5px solid #dde4ea;
+    background: #fff;
+    color: #5a7080;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-submit {
+    padding: 9px 22px;
+    border-radius: 7px;
+    border: none;
+    background: #3e97b9;
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-submit:hover {
+    background: #2d85a5;
+}
+
+/* ── Product image in table ───────────────────────── */
+.inv-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f0f5f8;
+}
+
+/* ── Update Product Modal ─────────────────────────── */
+.inv-modal-box {
+    max-width: 580px;
+}
+
+.inv-modal-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #1a2f3e;
+    margin: 0;
+    text-align: center;
+}
+
+.inv-modal-subtitle {
+    text-align: center;
+    font-size: 12.5px;
+    color: #8a9daa;
+    margin-bottom: 18px;
+}
+
+.inv-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inv-modal-row {
+    display: flex;
+    gap: 16px;
+}
+
+.inv-modal-col {
+    flex: 1;
+}
+
+.inv-modal-col-sm {
+    flex: 0 0 160px;
+}
+
+.inv-mlabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #5a7080;
+    letter-spacing: 0.4px;
+    margin-bottom: 5px;
+    margin-top: 14px;
+    text-transform: uppercase;
+}
+
+.inv-minput {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border: 1px solid #dde4ea;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: #1a2f3e;
+    outline: none;
+    background: #f9fafb;
+    transition: border-color 0.15s;
+}
+
+.inv-minput:focus {
+    border-color: #3e97b9;
+    background: #fff;
+}
+
+.inv-minput::placeholder {
+    color: #a0b0ba;
+}
+
+/* ── Production Stages Grid ───────────────────────── */
+.inv-stages-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.inv-stage-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f6f9fb;
+    border: 1px solid #e2ecf1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.13s, border-color 0.13s;
+}
+
+.inv-stage-check:has(input:checked) {
+    background: #e8f4fa;
+    border-color: #3e97b9;
+}
+
+.inv-stage-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3e97b9;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.inv-stage-text {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #3a5060;
+}
+
+.inv-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid #edf2f5;
+}

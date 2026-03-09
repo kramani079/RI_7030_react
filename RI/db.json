@@ -1,0 +1,73 @@
+{
+  "productTypes": [
+    {
+      "id": "1",
+      "name": "Necklace"
+    },
+    {
+      "id": "2",
+      "name": "Ring"
+    },
+    {
+      "id": "3",
+      "name": "Bracelet"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": "Golden Leaf Necklace",
+      "sku": "GLN-001",
+      "typeId": 1,
+      "stock": 15,
+      "unitCost": 120
+    },
+    {
+      "id": "2",
+      "name": "Silver Band",
+      "sku": "SB-001",
+      "typeId": 2,
+      "stock": 40,
+      "unitCost": 30
+    }
+  ],
+  "employeeTypes": [
+    {
+      "id": "1",
+      "name": "Goldsmith"
+    },
+    {
+      "id": "2",
+      "name": "Polisher"
+    },
+    {
+      "id": "3",
+      "name": "Manager"
+    }
+  ],
+  "employees": [],
+  "users": [],
+  "orders": [
+    {
+      "id": "1",
+      "customer": "Retail Shop A",
+      "items": [
+        {
+          "productId": 2,
+          "qty": 3
+        }
+      ],
+      "status": "open",
+      "createdAt": "2026-02-17T10:00:00Z"
+    }
+  ],
+  "productionRuns": [
+    {
+      "id": "1",
+      "productId": 1,
+      "qty": 10,
+      "status": "in_progress",
+      "startedAt": "2026-02-16T09:00:00Z"
+    }
+  ]
+}

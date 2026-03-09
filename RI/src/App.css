@@ -1,0 +1,208 @@
+/* =====================================================
+   App Shell — Rameshwar Imitation Factory Mgmt System
+   ===================================================== */
+
+/* ── Full-height shell: sidebar left + main right ── */
+.app-shell {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: #eaf4f8;
+}
+
+/* ── ─────────────────────────────────────────────── */
+/* ── SIDEBAR                                         */
+/* ── ─────────────────────────────────────────────── */
+.sidebar {
+  width: 160px;
+  min-width: 160px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-right: 1px solid #e2ecf1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.sidebar-logo {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a3344;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #edf2f5;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 10px 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav li {
+  display: block;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  color: #4a6070;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.14s, color 0.14s;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+  background: #f0f7fa;
+  color: #1a3344;
+}
+
+.sidebar-link.active {
+  background: #e8f4fa;
+  color: #1a3344;
+  font-weight: 700;
+  border-left-color: #3e97b9;
+}
+
+.sidebar-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-label {
+  font-size: 14px;
+}
+
+/* ── ─────────────────────────────────────────────── */
+/* ── RIGHT AREA (topbar + content)                   */
+/* ── ─────────────────────────────────────────────── */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ── TOPBAR ──────────────────────────────────────── */
+.topbar {
+  height: 52px;
+  min-height: 52px;
+  background: #3e97b9;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 0;
+}
+
+.topbar-welcome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+}
+
+.topbar-sun {
+  font-size: 16px;
+}
+
+.topbar-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.topbar-badge {
+  background: #fff;
+  color: #3e97b9;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.2px;
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-avatar {
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.topbar-logout {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+  padding: 5px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.topbar-logout:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* ── CONTENT AREA ────────────────────────────────── */
+.app-content {
+  flex: 1;
+  padding: 24px 28px;
+  overflow-y: auto;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 900px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid #e2ecf1;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 6px;
+  }
+
+  .sidebar-link {
+    padding: 8px 12px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .sidebar-link.active {
+    border-left: none;
+    border-bottom-color: #3e97b9;
+  }
+
+  .app-main {
+    min-height: unset;
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+}

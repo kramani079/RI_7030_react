@@ -1,0 +1,190 @@
+/* =====================================================
+   Register Page — Rameshwar Imitation Factory Mgmt
+   Exact match to the .NET reference UI
+   ===================================================== */
+
+/* Reuse topbar styles from LoginPage.css */
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #eaf4f8;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Page background ─────────────────────────────── */
+.reg-bg {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 50px 20px 80px;
+}
+
+/* ── White Card ──────────────────────────────────── */
+.reg-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px 40px 36px;
+  box-shadow: 0 6px 28px rgba(30, 74, 98, 0.10);
+  width: 100%;
+  max-width: 540px;
+}
+
+/* ── Title ───────────────────────────────────────── */
+.reg-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a2f3e;
+  text-align: center;
+  margin: 0 0 14px;
+  letter-spacing: 0.2px;
+}
+
+/* ── Divider ─────────────────────────────────────── */
+.reg-divider {
+  border: none;
+  border-top: 1px solid #e2e8ed;
+  margin: 0 0 20px;
+}
+
+/* ── Form ────────────────────────────────────────── */
+.reg-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Section label (e.g. "Account", "Account Type") ─ */
+.reg-section-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #5a6e7f;
+  margin-bottom: 10px;
+}
+
+/* ── Text / Password inputs ──────────────────────── */
+.reg-field {
+  width: 100%;
+  box-sizing: border-box;
+  background: #f0f3f5;
+  border: 1px solid #dde4ea;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #2a3a47;
+  outline: none;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.reg-field:focus {
+  border-color: #3e97b9;
+  background: #f5fbfe;
+}
+
+.reg-field::placeholder {
+  color: #9aabb7;
+}
+
+/* ── Radio buttons row ───────────────────────────── */
+.reg-radios {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.reg-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2f3e;
+  cursor: pointer;
+  user-select: none;
+}
+
+.reg-radio-label input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #3e97b9;
+  cursor: pointer;
+}
+
+/* ── Employee Type dropdown ──────────────────────── */
+.reg-select {
+  width: 100%;
+  box-sizing: border-box;
+  background: #f0f3f5;
+  border: 1px solid #dde4ea;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #2a3a47;
+  outline: none;
+  cursor: pointer;
+  appearance: auto;
+  transition: border-color 0.2s;
+}
+
+.reg-select:focus {
+  border-color: #3e97b9;
+}
+
+/* ── Actions (Register button) ───────────────────── */
+.reg-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.reg-btn {
+  background: #3e97b9;
+  color: #fff;
+  border: none;
+  border-radius: 26px;
+  padding: 11px 60px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 16px rgba(62, 151, 185, 0.28);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.reg-btn:hover {
+  background: #2d85a5;
+  box-shadow: 0 6px 22px rgba(62, 151, 185, 0.38);
+}
+
+.reg-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Login link ──────────────────────────────────── */
+.reg-login-link {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.reg-login-link a {
+  color: #3e97b9;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.reg-login-link a:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 600px) {
+  .reg-card {
+    padding: 22px 18px 28px;
+  }
+}
