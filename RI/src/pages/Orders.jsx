@@ -1,15 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Orders.css';
-
-const ORDERS_INIT = [
-  { id: 'RI_2001', customer: 'Mahesh Patel', email: 'mahesh@gmail.com', product: 'Gold Chain', qty: 50, amount: '₹2,50,000', dueDate: 'Feb 28, 2026', production: { C: true, F: true, G: true, P: false }, status: 'In Production' },
-  { id: 'RI_2002', customer: 'Ramesh Jewellers', email: 'ramesh@jewellers.com', product: 'Ring Set', qty: 30, amount: '₹90,000', dueDate: 'Mar 2, 2026', production: { C: true, F: true, G: false, P: false }, status: 'In Production' },
-  { id: 'RI_2003', customer: 'Vijay Exports', email: 'vijay@exports.com', product: 'Necklace', qty: 20, amount: '₹1,20,000', dueDate: 'Mar 5, 2026', production: { C: true, F: false, G: false, P: false }, status: 'Pending' },
-  { id: 'RI_2004', customer: 'Anita Stores', email: 'anita@stores.com', product: 'Earrings', qty: 100, amount: '₹50,000', dueDate: 'Mar 7, 2026', production: { C: true, F: true, G: true, P: true }, status: 'Ready' },
-  { id: 'RI_2005', customer: 'Suresh Traders', email: 'suresh@traders.com', product: 'Silver Earrings', qty: 200, amount: '₹40,000', dueDate: 'Feb 15, 2026', production: { C: true, F: true, G: true, P: true }, status: 'Delivered' },
-];
-
-let nextOrderId = 2006;
 
 const STATUS_STYLE = {
   'In Production': { color: '#3e97b9', bg: '#e8f4fa', border: '#b0d9ec' },
@@ -18,37 +8,119 @@ const STATUS_STYLE = {
   'Delivered': { color: '#6a8090', bg: '#f3f6f8', border: '#cdd8de' },
 };
 
+function getNextOrderId(orders) {
+  const nums = orders.map(o => {
+    const m = o.id.match(/RI_(\d+)/);
+    return m ? Number(m[1]) : 0;
+  });
+  return `RI_${Math.max(2000, ...nums) + 1}`;
+}
+
 function pct(p) { return Object.values(p).filter(Boolean).length * 25; }
 
-export default function Orders() {
-  const [orders, setOrders] = useState(ORDERS_INIT);
+function getNextTxId(history) {
+  const nums = (history || []).map(h => {
+    const m = h.id.match(/RI_(\d+)/);
+    return m ? Number(m[1]) : 0;
+  });
+  return `RI_${Math.max(3000, ...nums) + 1}`;
+}
+
+export default function Orders({ orders, setOrders, onTransaction, products, history }) {
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editOrder, setEditOrder] = useState(null);
   const [viewOrder, setViewOrder] = useState(null);
-  const [form, setForm] = useState({ customer: '', email: '', product: '', qty: '', amount: '', dueDate: '' });
+  const [form, setForm] = useState({
+    customer: '',
+    email: '',
+    productId: '',
+    product: '',
+    qty: '',
+    unitPrice: '',
+    amount: '',
+    dueDate: ''
+  });
+
+  // Auto-calculate amount
+  useEffect(() => {
+    const q = Number(form.qty) || 0;
+    const p = Number(form.unitPrice) || 0;
+    if (q && p) {
+      setForm(prev => ({ ...prev, amount: (q * p).toString() }));
+    }
+  }, [form.qty, form.unitPrice]);
 
   const visible = orders.filter(o => {
+    // When filter is 'All', exclude Delivered. Otherwise match the selected filter.
+    if (filter === 'All' && o.status === 'Delivered') return false;
     const matchFilter = filter === 'All' || o.status === filter;
     const q = search.toLowerCase();
     const matchSearch = !q || o.customer.toLowerCase().includes(q) || o.product.toLowerCase().includes(q) || o.id.toLowerCase().includes(q);
     return matchFilter && matchSearch;
   });
 
-  function toggleStage(orderId, k) {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, production: { ...o.production, [k]: !o.production[k] } } : o));
+  function handleDispatch(o) {
+    if (o.status === 'Delivered') {
+      alert('Order already dispatched and delivered!');
+      return;
+    }
+
+    // Stock Validation
+    const targetProduct = products.find(p =>
+      (o.productId && p.id === o.productId) ||
+      (p.name && p.name.toLowerCase() === o.product.toLowerCase())
+    );
+
+    if (!targetProduct) {
+      alert(`Dispatch Failed: Product "${o.product}" not found in Inventory.`);
+      return;
+    }
+
+    if (targetProduct.stock < o.qty) {
+      alert(`Insufficient Stock to Dispatch!\nAvailable: ${targetProduct.stock}\nRequired: ${o.qty}\n\nPlease update inventory stock first.`);
+      return;
+    }
+
+    if (window.confirm(`Dispatch order ${o.id} for ${o.customer}?\nThis will mark it as Delivered and record the payment in Transactions.`)) {
+      // 1. Mark order as Delivered
+      setOrders(prev =>
+        prev.map(order =>
+          order.id === o.id ? { ...order, status: 'Delivered' } : order
+        )
+      );
+
+      // 2. Log in Transaction History
+      const tx = {
+        id: getNextTxId(history),
+        type: 'Sell',
+        party: o.customer,
+        productId: o.productId || targetProduct.id,
+        product: o.product,
+        qty: o.qty,
+        amount: o.amount,
+        status: 'Received',
+        date: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' }),
+      };
+
+      onTransaction(tx);
+
+      alert(`✅ Order ${o.id} marked as Delivered!\nTransaction recorded in Transactions → History.`);
+    }
   }
 
   function handleSave(e) {
     e.preventDefault();
+    const formattedAmount = form.amount.startsWith('₹') ? form.amount : `₹${Number(form.amount).toLocaleString('en-IN')}`;
+
     if (editOrder) {
-      setOrders(prev => prev.map(o => o.id === editOrder.id ? { ...o, ...form, amount: form.amount.startsWith('₹') ? form.amount : `₹${form.amount}` } : o));
+      setOrders(prev => prev.map(o => o.id === editOrder.id ? { ...o, ...form, amount: formattedAmount } : o));
     } else {
       setOrders(prev => [{
-        id: `RI_${nextOrderId++}`,
+        id: getNextOrderId(prev),
         ...form,
-        amount: `₹${form.amount}`,
+        amount: formattedAmount,
         production: { C: false, F: false, G: false, P: false },
         status: 'Pending'
       }, ...prev]);
@@ -59,19 +131,31 @@ export default function Orders() {
 
   function openEdit(o) {
     setEditOrder(o);
-    setForm({ customer: o.customer, email: o.email, product: o.product, qty: o.qty, amount: o.amount.replace('₹', ''), dueDate: o.dueDate });
+    setForm({
+      customer: o.customer,
+      email: o.email || '',
+      productId: o.productId || '',
+      product: o.product,
+      qty: o.qty,
+      unitPrice: o.unitPrice || '',
+      amount: o.amount.replace(/[₹,]/g, ''),
+      dueDate: o.dueDate || ''
+    });
     setShowModal(true);
   }
 
   return (
     <div className="orders-page">
       <div className="orders-header">
-        <h2 className="orders-title">📋 Orders Management</h2>
-        <button className="btn-new-order" onClick={() => { setEditOrder(null); setForm({ customer: '', email: '', product: '', qty: '', amount: '', dueDate: '' }); setShowModal(true); }}>+ Create New Order</button>
+        <h2 className="orders-title">Orders Management</h2>
+        <button className="btn-new-order" onClick={() => {
+          setEditOrder(null);
+          setForm({ customer: '', email: '', productId: '', product: '', qty: '', unitPrice: '', amount: '', dueDate: '' });
+          setShowModal(true);
+        }}>+ Create New Order</button>
       </div>
 
       <div className="orders-search-wrap">
-        <span className="search-icon-o">🔍</span>
         <input className="orders-search" placeholder="Search orders..." value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
@@ -87,8 +171,9 @@ export default function Orders() {
             <tr>
               <th>Order ID</th>
               <th>Customer</th>
-              <th>Product</th>
+              <th>Product (ID)</th>
               <th>Qty</th>
+              <th>Price</th>
               <th>Amount</th>
               <th>Production</th>
               <th>Status</th>
@@ -102,13 +187,14 @@ export default function Orders() {
                 <tr key={o.id}>
                   <td className="td-id">{o.id}</td>
                   <td className="td-customer"><strong>{o.customer}</strong><br /><small>{o.email}</small></td>
-                  <td>{o.product}</td>
+                  <td>{o.product} <br /><small style={{ color: '#64748b' }}>{o.productId}</small></td>
                   <td>{o.qty}</td>
+                  <td>₹{Number(o.unitPrice || 0).toLocaleString('en-IN')}</td>
                   <td className="td-amount">{o.amount}</td>
                   <td>
                     <div className="prod-dots">
                       {Object.keys(o.production).map(k => (
-                        <span key={k} className={`prod-dot ${o.production[k] ? 'done' : 'pending'} clickable`} onClick={() => toggleStage(o.id, k)}>{k}</span>
+                        <span key={k} className={`prod-dot ${o.production[k] ? 'done' : 'pending'}`}>{k}</span>
                       ))}
                       <span className="prod-pct">{pct(o.production)}%</span>
                     </div>
@@ -118,6 +204,29 @@ export default function Orders() {
                     <div className="action-btns">
                       <button className="act-view" onClick={() => setViewOrder(o)}>View</button>
                       <button className="act-edit" onClick={() => openEdit(o)}>Edit</button>
+                      {o.status === 'Delivered' ? (
+                        <span style={{
+                          padding: '5px 12px',
+                          borderRadius: '5px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          border: '1.5px solid #6a8090',
+                          color: '#6a8090',
+                          background: '#f3f6f8',
+                          display: 'inline-block'
+                        }}>✓ Delivered</span>
+                      ) : (
+                        <button className="act-pay" style={{
+                          padding: '5px 12px',
+                          borderRadius: '5px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          border: '1.5px solid #2dab6f',
+                          color: '#2dab6f',
+                          background: 'transparent'
+                        }} onClick={() => handleDispatch(o)}>Dispatch</button>
+                      )}
                       <button className="act-del" onClick={() => setOrders(prev => prev.filter(x => x.id !== o.id))}>Del</button>
                     </div>
                   </td>
@@ -138,11 +247,13 @@ export default function Orders() {
             </div>
             <div className="order-view-details">
               <p><strong>Customer:</strong> {viewOrder.customer}</p>
-              <p><strong>Email:</strong> {viewOrder.email}</p>
-              <p><strong>Product:</strong> {viewOrder.product}</p>
+              <p><strong>Email:</strong> {viewOrder.email || 'N/A'}</p>
+              <p><strong>Product:</strong> {viewOrder.product} ({viewOrder.productId || 'N/A'})</p>
               <p><strong>Quantity:</strong> {viewOrder.qty}</p>
-              <p><strong>Price:</strong> {viewOrder.amount}</p>
-              <p><strong>Due Date:</strong> {viewOrder.dueDate}</p>
+              <p><strong>Unit Price:</strong> ₹{Number(viewOrder.unitPrice || 0).toLocaleString('en-IN')}</p>
+              <p><strong>Total Amount:</strong> {viewOrder.amount}</p>
+              <p><strong>Due Date:</strong> {viewOrder.dueDate || 'N/A'}</p>
+              <p><strong>Status:</strong> {viewOrder.status}</p>
               <p><strong>Progress:</strong> {pct(viewOrder.production)}%</p>
             </div>
             <div className="modal-actions">
@@ -161,27 +272,57 @@ export default function Orders() {
               <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
             </div>
             <form className="modal-form" onSubmit={handleSave}>
-              <label>Customer Name</label>
-              <input value={form.customer} onChange={e => setForm(p => ({ ...p, customer: e.target.value }))} required />
-              <label>Email</label>
-              <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} type="email" />
-              <label>Product</label>
-              <input value={form.product} onChange={e => setForm(p => ({ ...p, product: e.target.value }))} required />
-              <label>Quantity</label>
-              <input value={form.qty} onChange={e => setForm(p => ({ ...p, qty: e.target.value }))} type="number" required />
-              <label>Amount (₹)</label>
-              <input value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} required />
+              <div className="modal-grid">
+                {!editOrder && (
+                  <div className="modal-col">
+                    <label>Order ID (Auto)</label>
+                    <input value={getNextOrderId(orders)} readOnly className="read-only" style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
+                  </div>
+                )}
+                <div className="modal-col">
+                  <label>Customer Name</label>
+                  <input value={form.customer} onChange={e => setForm(p => ({ ...p, customer: e.target.value }))} required />
+                </div>
+                <div className="modal-col">
+                  <label>Email</label>
+                  <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} type="email" />
+                </div>
+                <div className="modal-col">
+                  <label>Product ID</label>
+                  <input value={form.productId} onChange={e => setForm(p => ({ ...p, productId: e.target.value }))} placeholder="e.g. RI_1001" />
+                </div>
+                <div className="modal-col">
+                  <label>Product Name</label>
+                  <input value={form.product} onChange={e => setForm(p => ({ ...p, product: e.target.value }))} required />
+                </div>
+                <div className="modal-col">
+                  <label>Quantity</label>
+                  <input value={form.qty} onChange={e => setForm(p => ({ ...p, qty: e.target.value }))} type="number" required />
+                </div>
+                <div className="modal-col">
+                  <label>Unit Price (₹)</label>
+                  <input value={form.unitPrice} onChange={e => setForm(p => ({ ...p, unitPrice: e.target.value }))} type="number" required />
+                </div>
+                <div className="modal-col">
+                  <label>Total Amount (₹)</label>
+                  <input value={form.amount} readOnly className="read-only" />
+                </div>
+                <div className="modal-col">
+                  <label>Due Date</label>
+                  <input type="date" value={form.dueDate} onChange={e => setForm(p => ({ ...p, dueDate: e.target.value }))} />
+                </div>
+              </div>
               {editOrder && (
-                <>
+                <div style={{ marginTop: '15px' }}>
                   <label>Status</label>
                   <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}>
                     {Object.keys(STATUS_STYLE).map(s => <option key={s}>{s}</option>)}
                   </select>
-                </>
+                </div>
               )}
               <div className="modal-actions">
                 <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="modal-submit">Save</button>
+                <button type="submit" className="modal-submit">Save Order</button>
               </div>
             </form>
           </div>

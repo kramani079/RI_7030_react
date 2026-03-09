@@ -3,21 +3,54 @@ import { useNavigate, Link } from 'react-router-dom';
 import './LoginPage.css';
 
 export default function LoginPage({ onLogin }) {
+  const [loginType, setLoginType] = useState('Admin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   function submit(e) {
     e.preventDefault();
-    if (!email) return alert('Enter email');
+    setError('');
 
-    // Simple lookup from localStorage
+    if (!email.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
+    // Lookup from localStorage
     const users = JSON.parse(localStorage.getItem('ri_users') || '[]');
-    const found = users.find(u => u.email === email.toLowerCase());
+    const found = users.find(u => u.email === email.toLowerCase().trim());
 
+    if (!found) {
+      setError('No account found with this email. Please register first.');
+      return;
+    }
+
+    if (found.password !== password) {
+      setError('Incorrect password. Please try again.');
+      return;
+    }
+
+    // Check role match
+    if (found.role !== loginType) {
+      setError(`This account is registered as "${found.role}". Please use the ${found.role} login tab.`);
+      return;
+    }
+
+    // Login success
     const user = {
-      name: found ? found.fullName : (email.split('@')[0] || email),
-      role: 'Admin', // Force Admin role for everyone as per request
+      name: found.fullName,
+      email: found.email,
+      mobile: found.mobile || '',
+      address: found.address || '',
+      role: found.role,
+      employeeType: found.employeeType || 'N/A',
     };
 
     onLogin(user);
@@ -63,20 +96,86 @@ export default function LoginPage({ onLogin }) {
           </div>
 
           <div className="login-form-area">
-            <h1 className="login-title">Admin Login</h1>
+            {/* Login Type Toggle */}
+            <div className="login-type-toggle">
+              <button
+                type="button"
+                className={`login-type-btn ${loginType === 'Admin' ? 'active admin-active' : ''}`}
+                onClick={() => { setLoginType('Admin'); setError(''); }}
+              >
+                <span className="login-type-icon">🔐</span>
+                Admin
+              </button>
+              <button
+                type="button"
+                className={`login-type-btn ${loginType === 'Employee' ? 'active employee-active' : ''}`}
+                onClick={() => { setLoginType('Employee'); setError(''); }}
+              >
+                <span className="login-type-icon">👤</span>
+                Employee
+              </button>
+            </div>
+
+            <h1 className="login-title">
+              {loginType === 'Admin' ? 'Admin Login' : 'Employee Login'}
+            </h1>
+            <p className="login-subtitle">
+              {loginType === 'Admin'
+                ? 'Sign in with your admin credentials'
+                : 'Sign in with your employee credentials'}
+            </p>
+
+            {error && (
+              <div className="login-error">
+                <span className="login-error-icon">⚠</span>
+                {error}
+              </div>
+            )}
+
             <form className="login-form" onSubmit={submit}>
               <div className="field-group">
                 <label className="field-label" htmlFor="login-email">Email ID</label>
-                <input id="login-email" className="field" placeholder="Email ID" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
+                <input
+                  id="login-email"
+                  className="field"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={e => { setEmail(e.target.value); setError(''); }}
+                  autoComplete="email"
+                  type="email"
+                />
               </div>
               <div className="field-group">
                 <label className="field-label" htmlFor="login-password">Password</label>
-                <input id="login-password" type="password" className="field" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" />
+                <div className="password-wrap">
+                  <input
+                    id="login-password"
+                    type={showPassword ? 'text' : 'password'}
+                    className="field"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={e => { setPassword(e.target.value); setError(''); }}
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="toggle-pass-btn"
+                    onClick={() => setShowPassword(p => !p)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? '🙈' : '👁'}
+                  </button>
+                </div>
               </div>
-              <button className="btn-primary" type="submit">Login as Admin</button>
+              <button
+                className={`btn-primary ${loginType === 'Employee' ? 'btn-employee' : ''}`}
+                type="submit"
+              >
+                Login as {loginType}
+              </button>
             </form>
             <div className="register-line">
-              New admin? <Link to="/register">Create Account</Link>
+              Don't have an account? <Link to="/register">Register here</Link>
             </div>
           </div>
         </div>

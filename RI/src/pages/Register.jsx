@@ -8,9 +8,15 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
+    mobile: '',
+    address: '',
+    role: 'Admin',
+    employeeType: 'Casting'
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const EMPLOYEE_TYPES = ['Casting', 'Finishing Touch', 'Gold Plating', 'Packaging'];
 
   function change(e) {
     const { name, value } = e.target;
@@ -28,13 +34,15 @@ export default function Register() {
 
     setLoading(true);
 
-    // Simulate API call and save to local storage only
     setTimeout(() => {
       const userData = {
         fullName: form.fullName,
         email: form.email.toLowerCase(),
         password: form.password,
-        role: 'Admin', // Always Admin as per new simplified request
+        mobile: form.mobile,
+        address: form.address,
+        role: form.role,
+        employeeType: form.role === 'Employee' ? form.employeeType : 'N/A',
         createdAt: new Date().toISOString(),
       };
 
@@ -62,7 +70,7 @@ export default function Register() {
 
       <section className="reg-bg">
         <div className="reg-card">
-          <h2 className="reg-title">Register Admin Account</h2>
+          <h2 className="reg-title">Create New Account</h2>
           <hr className="reg-divider" />
 
           <form className="reg-form" onSubmit={submit}>
@@ -87,6 +95,23 @@ export default function Register() {
             />
             <input
               className="reg-field"
+              name="mobile"
+              type="tel"
+              value={form.mobile}
+              onChange={change}
+              placeholder="Mobile No *"
+              required
+            />
+            <input
+              className="reg-field"
+              name="address"
+              value={form.address}
+              onChange={change}
+              placeholder="Address *"
+              required
+            />
+            <input
+              className="reg-field"
               name="password"
               type="password"
               value={form.password}
@@ -104,11 +129,53 @@ export default function Register() {
               required
             />
 
+            <hr className="reg-divider" style={{ margin: '15px 0 20px' }} />
+
+            <div className="reg-section-label">Account Type</div>
+            <div className="reg-radios">
+              <label className="reg-radio-label">
+                <input
+                  type="radio"
+                  name="role"
+                  value="Admin"
+                  checked={form.role === 'Admin'}
+                  onChange={change}
+                />
+                Admin
+              </label>
+              <label className="reg-radio-label">
+                <input
+                  type="radio"
+                  name="role"
+                  value="Employee"
+                  checked={form.role === 'Employee'}
+                  onChange={change}
+                />
+                Employee
+              </label>
+            </div>
+
+            {form.role === 'Employee' && (
+              <div style={{ marginTop: '15px' }}>
+                <div className="reg-section-label">Employee Type</div>
+                <select
+                  className="reg-select"
+                  name="employeeType"
+                  value={form.employeeType}
+                  onChange={change}
+                >
+                  {EMPLOYEE_TYPES.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <hr className="reg-divider" style={{ marginTop: '22px' }} />
 
             <div className="reg-actions">
               <button className="reg-btn" type="submit" disabled={loading}>
-                {loading ? 'Registering...' : 'Create Admin Account'}
+                {loading ? 'Registering...' : 'Complete Registration'}
               </button>
             </div>
 

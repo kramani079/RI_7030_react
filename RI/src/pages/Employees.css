@@ -170,34 +170,54 @@
     gap: 6px;
 }
 
-.emp-edit {
-    padding: 5px 14px;
+.act-view,
+.act-edit,
+.act-del,
+.act-pay {
+    padding: 5px 12px;
     border-radius: 5px;
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 600;
-    border: 1.5px solid #c5d0d8;
-    color: #5a7080;
-    background: transparent;
+    border: 1.5px solid;
     cursor: pointer;
+    transition: all 0.13s;
+    background: transparent;
 }
 
-.emp-edit:hover {
+.act-view {
+    color: #3e97b9;
+    border-color: #3e97b9;
+}
+
+.act-edit {
+    color: #5a7080;
+    border-color: #c5d0d8;
+}
+
+.act-del {
+    color: #e05c5c;
+    border-color: #e05c5c;
+}
+
+.act-pay {
+    color: #2dab6f;
+    border-color: #2dab6f;
+}
+
+.act-view:hover {
+    background: #e8f4fa;
+}
+
+.act-edit:hover {
     background: #f3f6f8;
 }
 
-.emp-del {
-    padding: 5px 14px;
-    border-radius: 5px;
-    font-size: 12.5px;
-    font-weight: 600;
-    border: 1.5px solid #e05c5c;
-    color: #e05c5c;
-    background: transparent;
-    cursor: pointer;
+.act-del:hover {
+    background: #fff0f0;
 }
 
-.emp-del:hover {
-    background: #fff0f0;
+.act-pay:hover {
+    background: #e6f8f0;
 }
 
 /* FAB — reused from Orders/Inventory */

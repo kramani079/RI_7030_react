@@ -147,8 +147,6 @@
     font-size: 10px;
     font-weight: 700;
     flex-shrink: 0;
-    transition: transform 0.12s, box-shadow 0.12s;
-    cursor: pointer;
 }
 
 .inv-dot.done {
@@ -159,11 +157,6 @@
 .inv-dot.pending {
     background: #e0e8ed;
     color: #7a919e;
-}
-
-.inv-dot:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 0 3px rgba(62, 151, 185, 0.3);
 }
 
 
@@ -186,34 +179,54 @@
     gap: 6px;
 }
 
-.inv-edit {
-    padding: 5px 14px;
+.act-view,
+.act-edit,
+.act-del,
+.act-pay {
+    padding: 5px 12px;
     border-radius: 5px;
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 600;
-    border: 1.5px solid #c5d0d8;
-    color: #5a7080;
-    background: transparent;
+    border: 1.5px solid;
     cursor: pointer;
+    transition: all 0.13s;
+    background: transparent;
 }
 
-.inv-edit:hover {
+.act-view {
+    color: #3e97b9;
+    border-color: #3e97b9;
+}
+
+.act-edit {
+    color: #5a7080;
+    border-color: #c5d0d8;
+}
+
+.act-del {
+    color: #e05c5c;
+    border-color: #e05c5c;
+}
+
+.act-pay {
+    color: #2dab6f;
+    border-color: #2dab6f;
+}
+
+.act-view:hover {
+    background: #e8f4fa;
+}
+
+.act-edit:hover {
     background: #f3f6f8;
 }
 
-.inv-del {
-    padding: 5px 14px;
-    border-radius: 5px;
-    font-size: 12.5px;
-    font-weight: 600;
-    border: 1.5px solid #e05c5c;
-    color: #e05c5c;
-    background: transparent;
-    cursor: pointer;
+.act-del:hover {
+    background: #fff0f0;
 }
 
-.inv-del:hover {
-    background: #fff0f0;
+.act-pay:hover {
+    background: #e6f8f0;
 }
 
 /* Legend */
@@ -273,11 +286,12 @@
 
 .modal-box {
     background: #fff;
-    border-radius: 12px;
-    padding: 28px 30px;
+    border-radius: 16px;
+    padding: 32px;
     width: 100%;
-    max-width: 440px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    max-width: 500px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header {
@@ -304,14 +318,16 @@
 .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 16px;
 }
 
 .modal-form label {
-    font-size: 12.5px;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #5a7080;
-    margin-top: 10px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
 }
 
 .modal-form input,
@@ -380,10 +396,10 @@
 }
 
 .inv-modal-title {
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 700;
-    color: #1a2f3e;
-    margin: 0;
+    color: #1e293b;
+    margin-bottom: 24px;
     text-align: center;
 }
 
@@ -401,45 +417,39 @@
 }
 
 .inv-modal-row {
-    display: flex;
-    gap: 16px;
-}
-
-.inv-modal-col {
-    flex: 1;
-}
-
-.inv-modal-col-sm {
-    flex: 0 0 160px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
 }
 
 .inv-mlabel {
     display: block;
-    font-size: 11px;
-    font-weight: 700;
-    color: #5a7080;
-    letter-spacing: 0.4px;
-    margin-bottom: 5px;
-    margin-top: 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    margin-top: 16px;
 }
 
 .inv-minput {
     width: 100%;
     box-sizing: border-box;
-    padding: 10px 14px;
-    border: 1px solid #dde4ea;
-    border-radius: 6px;
-    font-size: 13.5px;
-    color: #1a2f3e;
+    padding: 0.875rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #1e293b;
     outline: none;
-    background: #f9fafb;
-    transition: border-color 0.15s;
+    background: #f8fafc;
+    transition: all 0.2s ease;
 }
 
 .inv-minput:focus {
-    border-color: #3e97b9;
+    border-color: #3b82f6;
     background: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .inv-minput::placeholder {

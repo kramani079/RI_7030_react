@@ -56,11 +56,11 @@
     margin: 0 0 22px;
 }
 
-/* ── Two-column grid form ────────────────────────── */
+/* ── Three-column grid form ────────────────────────── */
 .tx-grid-form {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 36px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0 32px;
 }
 
 .tx-col {
@@ -78,13 +78,13 @@
 }
 
 .tx-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #5a7080;
-    letter-spacing: 0.4px;
-    margin-bottom: 5px;
-    margin-top: 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    margin-top: 16px;
 }
 
 .tx-col .tx-label:first-of-type {
@@ -94,19 +94,31 @@
 .tx-input {
     width: 100%;
     box-sizing: border-box;
-    padding: 10px 14px;
-    border: 1px solid #dde4ea;
-    border-radius: 6px;
-    font-size: 13.5px;
-    color: #1a2f3e;
+    padding: 0.875rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #1e293b;
     outline: none;
-    background: #f9fafb;
-    transition: border-color 0.15s, background 0.15s;
+    background: #f8fafc;
+    transition: all 0.2s ease;
 }
 
 .tx-input:focus {
-    border-color: #3e97b9;
+    border-color: #3b82f6;
     background: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.tx-input.read-only {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+    border-style: dashed;
+    color: #64748b;
+}
+
+.tx-input::placeholder {
+    color: #a0b0ba;
 }
 
 .tx-input::placeholder {

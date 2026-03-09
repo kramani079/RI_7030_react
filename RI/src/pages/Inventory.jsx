@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import './Inventory.css';
 
-const PRODUCTS_INIT = [
-  { id: 'RI_1001', name: 'Gold Ring', stock: 120, lowStock: false, production: { C: true, F: true, G: true, P: true } },
-  { id: 'RI_1002', name: 'Gold Chain', stock: 85, lowStock: false, production: { C: true, F: true, G: true, P: false } },
-  { id: 'RI_1003', name: 'Diamond Necklace', stock: 12, lowStock: true, production: { C: true, F: true, G: false, P: false } },
-  { id: 'RI_1004', name: 'Gold Bangle', stock: 200, lowStock: false, production: { C: true, F: false, G: false, P: false } },
-  { id: 'RI_1005', name: 'Silver Earrings', stock: 8, lowStock: true, production: { C: false, F: false, G: false, P: false } },
-];
-
-let nextId = 1006;
-
 const STAGE_LABELS = {
-  C: '🔧 Stage 1 – Casting',
-  F: '✨ Stage 2 – Finishing Touch',
-  G: '🏅 Stage 3 – Gold Plating',
-  P: '📦 Stage 4 – Packaging',
+  C: 'Stage 1 – Casting',
+  F: 'Stage 2 – Finishing Touch',
+  G: 'Stage 3 – Gold Plating',
+  P: 'Stage 4 – Packaging',
 };
+
+function getNextProductId(products) {
+  const nums = products.map(p => {
+    const m = p.id.match(/RI_(\d+)/);
+    return m ? Number(m[1]) : 0;
+  });
+  return `RI_${Math.max(1000, ...nums) + 1}`;
+}
 
 function pct(prod) { return Object.values(prod).filter(Boolean).length * 25; }
 
@@ -25,13 +23,12 @@ function CompleteBadge({ prod }) {
   const color = p === 100 ? '#2dab6f' : p >= 50 ? '#f4a12a' : '#e05c5c';
   return (
     <span className="inv-complete" style={{ color }}>
-      {p === 100 ? '100% ✔' : p === 0 ? '0%' : `${p}%`}
+      {p === 100 ? '100% Done' : p === 0 ? '0%' : `${p}%`}
     </span>
   );
 }
 
-export default function Inventory() {
-  const [products, setProducts] = useState(PRODUCTS_INIT);
+export default function Inventory({ products, setProducts }) {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
@@ -64,10 +61,6 @@ export default function Inventory() {
     setShowModal(true);
   }
 
-  function openView(p) {
-    setViewProduct(p);
-  }
-
   function toggleFormStage(key) {
     setForm(prev => ({
       ...prev,
@@ -84,7 +77,7 @@ export default function Inventory() {
           : p
       ));
     } else {
-      const newProdId = `RI_${nextId++}`;
+      const newProdId = getNextProductId(products);
       setProducts(prev => [...prev, {
         id: newProdId, name: form.name,
         stock: Number(form.stock), lowStock: Number(form.stock) < 15,
@@ -103,12 +96,11 @@ export default function Inventory() {
   return (
     <div className="inv-page">
       <div className="inv-header">
-        <h2 className="inv-title">🪙 Inventory Management</h2>
+        <h2 className="inv-title">Inventory Management</h2>
         <button className="btn-add-inv" onClick={openAdd}>+ Add New Product</button>
       </div>
 
       <div className="inv-search-wrap">
-        <span className="inv-search-icon">🔍</span>
         <input className="inv-search" placeholder="Search by name or RI ID..."
           value={search} onChange={e => setSearch(e.target.value)} />
       </div>
@@ -139,9 +131,7 @@ export default function Inventory() {
                   <div className="inv-prod-dots">
                     {Object.entries(p.production).map(([letter, done]) => (
                       <span key={letter}
-                        className={`inv-dot ${done ? 'done' : 'pending'} clickable`}
-                        title={`Toggle ${letter} stage`}
-                        onClick={() => toggleProductStage(p.id, letter)}
+                        className={`inv-dot ${done ? 'done' : 'pending'}`}
                       >{letter}</span>
                     ))}
                   </div>
@@ -149,9 +139,9 @@ export default function Inventory() {
                 <td><CompleteBadge prod={p.production} /></td>
                 <td>
                   <div className="inv-actions">
-                    <button className="inv-view" onClick={() => openView(p)}>View</button>
-                    <button className="inv-edit" onClick={() => openEdit(p)}>Edit</button>
-                    <button className="inv-del" onClick={() => handleDelete(p.id)}>Delete</button>
+                    <button className="act-view" onClick={() => setViewProduct(p)}>View</button>
+                    <button className="act-edit" onClick={() => openEdit(p)}>Edit</button>
+                    <button className="act-del" onClick={() => handleDelete(p.id)}>Del</button>
                   </div>
                 </td>
               </tr>
@@ -164,10 +154,9 @@ export default function Inventory() {
       </div>
 
       <div className="inv-legend">
-        <span className="leg-done">●</span> Done &nbsp;
-        <span className="leg-pending">○</span> Pending &nbsp;|&nbsp;
+        <span className="leg-done">Done</span> &nbsp;
+        <span className="leg-pending">Pending</span> &nbsp;|&nbsp;
         <strong>C</strong>: Casting &nbsp;|&nbsp;
-        <strong>F</strong>: Finishing &nbsp;|&nbsp;
         <strong>G</strong>: Gold Plating &nbsp;|&nbsp;
         <strong>P</strong>: Packaging
       </div>
@@ -179,8 +168,8 @@ export default function Inventory() {
         <div className="modal-overlay" onClick={() => setViewProduct(null)}>
           <div className="modal-box inv-modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">� Product Info: {viewProduct.id}</span>
-              <button className="modal-close" onClick={() => setViewProduct(null)}>✕</button>
+              <span className="modal-title">Product Info: {viewProduct.id}</span>
+              <button className="modal-close" onClick={() => setViewProduct(null)}>X</button>
             </div>
             <div className="inv-view-details">
               <div className="inv-view-row"><strong>Name:</strong> {viewProduct.name}</div>
@@ -190,7 +179,7 @@ export default function Inventory() {
               <div className="inv-view-stages">
                 {Object.entries(STAGE_LABELS).map(([k, lbl]) => (
                   <div key={k} className={`inv-view-stage ${viewProduct.production[k] ? 'done' : 'pending'}`}>
-                    {viewProduct.production[k] ? '✅' : '⬜'} {lbl}
+                    {viewProduct.production[k] ? '[DONE]' : '[PENDING]'} {lbl}
                   </div>
                 ))}
               </div>
@@ -209,6 +198,14 @@ export default function Inventory() {
           <div className="modal-box inv-modal-box" onClick={e => e.stopPropagation()}>
             <h3 className="inv-modal-title">{editTarget ? `Edit Product ${editTarget}` : 'Add New Product'}</h3>
             <form className="inv-modal-form" onSubmit={handleSave}>
+              {!editTarget && (
+                <div className="inv-modal-row" style={{ marginBottom: 12 }}>
+                  <div className="inv-modal-col">
+                    <label className="inv-mlabel">PRODUCT ID (Auto)</label>
+                    <input className="inv-minput read-only" value={getNextProductId(products)} readOnly style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
+                  </div>
+                </div>
+              )}
               <div className="inv-modal-row">
                 <div className="inv-modal-col">
                   <label className="inv-mlabel">PRODUCT NAME</label>

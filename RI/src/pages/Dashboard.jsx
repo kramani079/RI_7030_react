@@ -1,33 +1,13 @@
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
-/* ── Static demo data mirroring the .NET reference ── */
-const STATS = [
-  {
-    label: 'TO RECEIVE (RECEIVABLE)',
-    value: '₹1,85,000',
-    color: '#2dab6f',
-    sub: '6 pending payments →',
-  },
-  {
-    label: 'TO PAY (PAYABLE)',
-    value: '₹72,500',
-    color: '#e05c5c',
-    sub: '4 pending payments →',
-  },
-  {
-    label: 'PENDING ORDERS',
-    value: '8',
-    color: '#f4a12a',
-    sub: '3 due this week →',
-  },
-  {
-    label: 'NET BALANCE',
-    value: '₹1,12,500',
-    color: '#3e97b9',
-    sub: 'Receivable − Payable →',
-  },
-];
+/* ── Helper: parse ₹ formatted amount to number ── */
+function parseAmount(str) {
+  if (!str) return 0;
+  return Number(String(str).replace(/[₹,\s]/g, '')) || 0;
+}
 
+/* ── Static payment display data (demo) ─────────── */
 const RECEIVE = {
   overdue: [
     { name: 'Mahesh Patel', sub: 'Gold chain order – Invoice #1021', amount: '+₹50,000', date: 'OVERDUE – FEB 20' },
@@ -39,7 +19,7 @@ const RECEIVE = {
   upcoming: [
     { name: 'Vijay Exports', sub: 'Necklace order – Invoice #1027', amount: '+₹42,000', date: 'FEB 27' },
     { name: 'Anita Stores', sub: 'Earrings bulk – Invoice #1028', amount: '+₹18,500', date: 'MAR 1' },
-    { name: 'Kishan Bros.', sub: 'Bracelet batch – Invoice #1030', amount: '+₹11,500', date: 'PAID ✔' },
+    { name: 'Kishan Bros.', sub: 'Bracelet batch – Invoice #1030', amount: '+₹11,500', date: 'PAID' },
   ],
 };
 
@@ -56,18 +36,18 @@ const PAY = {
   ],
 };
 
-const ORDERS = [
+const DASHBOARD_ORDERS = [
   { id: 'RI_2001', customer: 'Mahesh Patel', product: 'Gold Chain', qty: 50, due: 'Feb 28', progress: 75, status: 'GOLD PLATING', statusColor: '#f4a12a' },
   { id: 'RI_2002', customer: 'Ramesh Jewellers', product: 'Ring Set', qty: 30, due: 'Mar 2', progress: 50, status: 'FINISHING', statusColor: '#3e97b9' },
   { id: 'RI_2003', customer: 'Vijay Exports', product: 'Necklace', qty: 20, due: 'Mar 5', progress: 25, status: 'CASTING', statusColor: '#f4a12a' },
-  { id: 'RI_2004', customer: 'Anita Stores', product: 'Earrings', qty: 100, due: 'Mar 7', progress: 100, status: 'READY ✔', statusColor: '#2dab6f' },
+  { id: 'RI_2004', customer: 'Anita Stores', product: 'Earrings', qty: 100, due: 'Mar 7', progress: 100, status: 'READY', statusColor: '#2dab6f' },
 ];
 
 /* ── Sub-components ─────────────────────────────── */
 function PayRow({ item, variant }) {
   const isOverdue = variant === 'overdue';
   const isToday = variant === 'today';
-  const isPaid = item.date === 'PAID ✔';
+  const isPaid = item.date === 'PAID';
 
   return (
     <div className={`pay-row ${isOverdue ? 'pay-overdue' : ''} ${isToday ? 'pay-today' : ''}`}>
@@ -94,25 +74,24 @@ function PaySection({ title, icon, data }) {
     <div className="pay-panel">
       <div className="pay-panel-header">
         <span className={`pay-dot ${title.includes('Receive') ? 'green' : 'red'}`}></span>
-        <span className="pay-panel-icon">{icon}</span>
         <span className="pay-panel-title">{title}</span>
       </div>
 
       {hasOverdue && (
         <>
-          <div className="pay-group-label">⚠ OVERDUE</div>
+          <div className="pay-group-label">OVERDUE</div>
           {data.overdue.map((r, i) => <PayRow key={i} item={r} variant="overdue" />)}
         </>
       )}
       {hasToday && (
         <>
-          <div className="pay-group-label">📅 TODAY – FEB 25</div>
+          <div className="pay-group-label">TODAY – FEB 25</div>
           {data.today.map((r, i) => <PayRow key={i} item={r} variant="today" />)}
         </>
       )}
       {hasUpcoming && (
         <>
-          <div className="pay-group-label">📅 UPCOMING</div>
+          <div className="pay-group-label">UPCOMING</div>
           {data.upcoming.map((r, i) => <PayRow key={i} item={r} variant="upcoming" />)}
         </>
       )}
@@ -121,14 +100,74 @@ function PaySection({ title, icon, data }) {
 }
 
 /* ── Main Dashboard ─────────────────────────────── */
-export default function Dashboard() {
+export default function Dashboard({ orders = [], history = [] }) {
+  const navigate = useNavigate();
+
+  // ── Dynamic calculations from live data ──
+  // Total Receivable = sum of all Sell transactions with status Received
+  const totalReceivable = history
+    .filter(h => h.type === 'Sell' && h.status === 'Received')
+    .reduce((sum, h) => sum + parseAmount(h.amount), 0);
+
+  // Total Payable = sum of all Buy transactions with status Pending
+  const totalPayable = history
+    .filter(h => h.type === 'Buy' && h.status === 'Pending')
+    .reduce((sum, h) => sum + parseAmount(h.amount), 0);
+
+  // Pending Orders = orders not yet delivered
+  const pendingOrdersCount = orders.filter(o => o.status !== 'Delivered').length;
+
+  // Delivered Orders count
+  const deliveredCount = orders.filter(o => o.status === 'Delivered').length;
+
+  // Net Balance = Receivable - Payable
+  const netBalance = totalReceivable - totalPayable;
+
+  const formatINR = (n) => `₹${Math.abs(n).toLocaleString('en-IN')}`;
+
+  const STATS = [
+    {
+      label: 'TO RECEIVE (RECEIVABLE)',
+      value: formatINR(totalReceivable),
+      color: '#2dab6f',
+      sub: `${history.filter(h => h.type === 'Sell' && h.status === 'Received').length} received payments →`,
+      path: '/transactions?tab=history'
+    },
+    {
+      label: 'TO PAY (PAYABLE)',
+      value: formatINR(totalPayable),
+      color: '#e05c5c',
+      sub: `${history.filter(h => h.type === 'Buy' && h.status === 'Pending').length} pending payments →`,
+      path: '/transactions?tab=history'
+    },
+    {
+      label: 'PENDING ORDERS',
+      value: String(pendingOrdersCount),
+      color: '#f4a12a',
+      sub: `${deliveredCount} delivered →`,
+      path: '/orders'
+    },
+    {
+      label: 'NET BALANCE',
+      value: `${netBalance >= 0 ? '' : '−'}${formatINR(netBalance)}`,
+      color: netBalance >= 0 ? '#3e97b9' : '#e05c5c',
+      sub: 'Receivable − Payable →',
+      path: '/transactions?tab=history'
+    },
+  ];
+
   return (
     <div className="dash">
 
       {/* ── Stat Cards ─────────────────────── */}
       <div className="stat-row">
         {STATS.map(s => (
-          <div className="stat-card" key={s.label} style={{ borderLeftColor: s.color }}>
+          <div
+            className="stat-card"
+            key={s.label}
+            style={{ borderLeftColor: s.color, cursor: 'pointer' }}
+            onClick={() => navigate(s.path)}
+          >
             <div className="stat-label">{s.label}</div>
             <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
             <div className="stat-sub">{s.sub}</div>
@@ -138,14 +177,14 @@ export default function Dashboard() {
 
       {/* ── Payments two-column ─────────────── */}
       <div className="pay-grid">
-        <PaySection title="Payments to Receive" icon="🌿" data={RECEIVE} />
-        <PaySection title="Payments to Make" icon="💎" data={PAY} />
+        <PaySection title="Payments to Receive" icon="" data={RECEIVE} />
+        <PaySection title="Payments to Make" icon="" data={PAY} />
       </div>
 
       {/* ── Pending Orders Table ─────────────── */}
       <div className="orders-panel">
         <div className="orders-panel-header">
-          <span className="orders-title">🍊 Pending Orders – Production Status</span>
+          <span className="orders-title">Pending Orders – Production Status</span>
           <a href="/orders" className="view-all-link">View All Orders →</a>
         </div>
 
@@ -163,7 +202,7 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {ORDERS.map(o => (
+            {DASHBOARD_ORDERS.map(o => (
               <tr key={o.id}>
                 <td className="order-id">{o.id}</td>
                 <td className="order-customer">{o.customer}</td>

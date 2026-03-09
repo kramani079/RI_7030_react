@@ -212,7 +212,6 @@
     font-size: 10px;
     font-weight: 700;
     flex-shrink: 0;
-    transition: transform 0.12s, box-shadow 0.12s;
 }
 
 .prod-dot.done {
@@ -223,15 +222,6 @@
 .prod-dot.pending {
     background: #e0e8ed;
     color: #7a919e;
-}
-
-.prod-dot.clickable {
-    cursor: pointer;
-}
-
-.prod-dot.clickable:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 0 3px rgba(62, 151, 185, 0.3);
 }
 
 .prod-pct {
@@ -393,25 +383,51 @@
     gap: 4px;
 }
 
+.modal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.modal-col {
+    display: flex;
+    flex-direction: column;
+}
+
 .modal-form label {
-    font-size: 12.5px;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #5a7080;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
     margin-top: 10px;
 }
 
-.modal-form input {
-    padding: 9px 12px;
-    border: 1.5px solid #dde4ea;
-    border-radius: 7px;
-    font-size: 13.5px;
+.modal-form input,
+.modal-form select {
+    padding: 0.875rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #1e293b;
     outline: none;
-    color: #1a2f3e;
-    transition: border-color 0.15s;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    width: 100%;
 }
 
-.modal-form input:focus {
-    border-color: #3e97b9;
+.modal-form input:focus,
+.modal-form select:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.modal-form input.read-only {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+    border-style: dashed;
 }
 
 .modal-actions {

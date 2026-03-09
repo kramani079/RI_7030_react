@@ -1,6 +1,6 @@
 /* =====================================================
    Login Page — Rameshwar Imitation Factory Mgmt System
-   Exact match to the .NET reference UI
+   Admin + Employee dual login with premium styling
    ===================================================== */
 
 /* ── Top bar ─────────────────────────────────────── */
@@ -21,7 +21,7 @@
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.5px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .top-actions {
@@ -55,7 +55,7 @@
   color: #6b849a;
   width: 140px;
   outline: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* ── Page background ─────────────────────────────── */
@@ -86,7 +86,7 @@
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 8px 32px rgba(30, 74, 98, 0.12);
-  max-width: 680px;
+  max-width: 720px;
   width: 100%;
 }
 
@@ -102,17 +102,119 @@
 
 /* ── Form area ───────────────────────────────────── */
 .login-form-area {
-  width: 230px;
+  width: 270px;
   padding: 4px 10px 4px 24px;
 }
 
+/* ── Login Type Toggle ───────────────────────────── */
+.login-type-toggle {
+  display: flex;
+  gap: 0;
+  background: #f0f4f8;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 18px;
+}
+
+.login-type-btn {
+  flex: 1;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #6b849a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+}
+
+.login-type-btn:hover {
+  color: #1a3344;
+}
+
+.login-type-btn.active {
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.login-type-btn.admin-active {
+  background: #3e97b9;
+}
+
+.login-type-btn.employee-active {
+  background: #2dab6f;
+}
+
+.login-type-icon {
+  font-size: 15px;
+}
+
+/* ── Title & Subtitle ────────────────────────────── */
 .login-title {
   font-size: 22px;
   font-weight: 600;
   color: #1a3344;
+  margin: 0 0 4px;
+}
+
+.login-subtitle {
+  font-size: 12px;
+  color: #7a8fa0;
   margin: 0 0 16px;
 }
 
+/* ── Error Message ───────────────────────────────── */
+.login-error {
+  background: #fff0f0;
+  border: 1px solid #ffccc7;
+  color: #d32f2f;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+  animation: shakeError 0.35s ease;
+}
+
+.login-error-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@keyframes shakeError {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-6px);
+  }
+
+  40% {
+    transform: translateX(6px);
+  }
+
+  60% {
+    transform: translateX(-4px);
+  }
+
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* ── Form Fields ─────────────────────────────────── */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -154,6 +256,35 @@
   color: #aab5be;
 }
 
+/* ── Password Field Wrapper ──────────────────────── */
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap .field {
+  padding-right: 40px;
+}
+
+.toggle-pass-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.toggle-pass-btn:hover {
+  opacity: 1;
+}
+
+/* ── Primary Button ──────────────────────────────── */
 .btn-primary {
   width: 100%;
   background: #3e97b9;
@@ -166,15 +297,32 @@
   margin-top: 6px;
   cursor: pointer;
   letter-spacing: 0.3px;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
   box-shadow: 0 4px 14px rgba(62, 151, 185, 0.28);
 }
 
 .btn-primary:hover {
   background: #2d85a5;
   box-shadow: 0 6px 20px rgba(62, 151, 185, 0.38);
+  transform: translateY(-1px);
 }
 
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Employee login button — green variant */
+.btn-primary.btn-employee {
+  background: #2dab6f;
+  box-shadow: 0 4px 14px rgba(45, 171, 111, 0.28);
+}
+
+.btn-primary.btn-employee:hover {
+  background: #249a60;
+  box-shadow: 0 6px 20px rgba(45, 171, 111, 0.38);
+}
+
+/* ── Register Link ───────────────────────────────── */
 .register-line {
   text-align: center;
   margin-top: 12px;
@@ -198,10 +346,12 @@
     flex-direction: column;
     padding: 22px;
   }
+
   .login-form-area {
     width: 100%;
     padding: 0;
   }
+
   .illustration {
     min-height: 160px;
   }
