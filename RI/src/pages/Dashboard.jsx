@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import './Dashboard.css';
 
 /* ── Helper: parse ₹ formatted amount to number ── */
@@ -44,7 +46,7 @@ const DASHBOARD_ORDERS = [
 ];
 
 /* ── Sub-components ─────────────────────────────── */
-function PayRow({ item, variant }) {
+function PayRow({ item, variant, g }) {
   const isOverdue = variant === 'overdue';
   const isToday = variant === 'today';
   const isPaid = item.date === 'PAID';
@@ -53,19 +55,19 @@ function PayRow({ item, variant }) {
     <div className={`pay-row ${isOverdue ? 'pay-overdue' : ''} ${isToday ? 'pay-today' : ''}`}>
       <div className="pay-row-left">
         <div className="pay-name">{item.name}</div>
-        <div className="pay-sub">{item.sub}</div>
+        <div className="pay-sub">{g(item.sub)}</div>
       </div>
       <div className="pay-row-right">
-        <div className={`pay-amount ${item.amount.startsWith('+') ? 'green' : 'red'}`}>{item.amount}</div>
+        <div className={`pay-amount ${item.amount.startsWith('+') ? 'green' : 'red'}`}>{g(item.amount)}</div>
         <div className={`pay-date ${isOverdue ? 'overdue-tag' : ''} ${isToday ? 'today-tag' : ''} ${isPaid ? 'paid-tag' : ''}`}>
-          {item.date}
+          {g(item.date)}
         </div>
       </div>
     </div>
   );
 }
 
-function PaySection({ title, icon, data }) {
+function PaySection({ title, icon, data, t, g }) {
   const hasOverdue = data.overdue.length > 0;
   const hasToday = data.today.length > 0;
   const hasUpcoming = data.upcoming.length > 0;
@@ -73,26 +75,26 @@ function PaySection({ title, icon, data }) {
   return (
     <div className="pay-panel">
       <div className="pay-panel-header">
-        <span className={`pay-dot ${title.includes('Receive') ? 'green' : 'red'}`}></span>
+        <span className={`pay-dot ${title.includes('Receive') || title.includes('મળવા') ? 'green' : 'red'}`}></span>
         <span className="pay-panel-title">{title}</span>
       </div>
 
       {hasOverdue && (
         <>
-          <div className="pay-group-label">OVERDUE</div>
-          {data.overdue.map((r, i) => <PayRow key={i} item={r} variant="overdue" />)}
+          <div className="pay-group-label">{t.overdue}</div>
+          {data.overdue.map((r, i) => <PayRow key={i} item={r} variant="overdue" g={g} />)}
         </>
       )}
       {hasToday && (
         <>
-          <div className="pay-group-label">TODAY – FEB 25</div>
-          {data.today.map((r, i) => <PayRow key={i} item={r} variant="today" />)}
+          <div className="pay-group-label">{g('TODAY – FEB 25')}</div>
+          {data.today.map((r, i) => <PayRow key={i} item={r} variant="today" g={g} />)}
         </>
       )}
       {hasUpcoming && (
         <>
-          <div className="pay-group-label">UPCOMING</div>
-          {data.upcoming.map((r, i) => <PayRow key={i} item={r} variant="upcoming" />)}
+          <div className="pay-group-label">{t.upcoming}</div>
+          {data.upcoming.map((r, i) => <PayRow key={i} item={r} variant="upcoming" g={g} />)}
         </>
       )}
     </div>
@@ -100,74 +102,113 @@ function PaySection({ title, icon, data }) {
 }
 
 /* ── Main Dashboard ─────────────────────────────── */
-export default function Dashboard({ orders = [], history = [] }) {
+export default function Dashboard({ orders = [], history = [], products = [] }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { t, g } = useLanguage();
+
+  const formatINR = (n) => g(`₹${Math.abs(n).toLocaleString('en-IN')}`);
+
+  if (user?.role === 'Employee') {
+    const lowStockProducts = products.filter(p => p.lowStock);
+    const todaysTx = history.slice(0, 5); 
+    const todaysSales = history.filter(h => h.type === 'Sell').slice(0, 5);
+    const salesSum = todaysSales.reduce((sum, h) => sum + parseAmount(h.amount), 0);
+
+    const EMP_STATS = [
+      { label: t.todaysSales, value: formatINR(salesSum), color: '#2dab6f', sub: `${g(todaysSales.length)} ${t.itemsSold}`, path: '/employee/transactions?tab=history' },
+      { label: t.lowStockItems, value: g(String(lowStockProducts.length)), color: '#e05c5c', sub: t.needsRestock, path: '/employee/inventory' },
+      { label: t.recentTransactions, value: g(String(todaysTx.length)), color: '#3e97b9', sub: t.latestActivity, path: '/employee/transactions?tab=history' },
+    ];
+
+    return (
+      <div className="dash">
+        <div className="stat-row">
+          {EMP_STATS.map(s => (
+            <div className="stat-card" key={s.label} style={{ borderLeftColor: s.color, cursor: 'pointer' }} onClick={() => navigate(s.path)}>
+              <div className="stat-label">{s.label}</div>
+              <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
+              <div className="stat-sub">{s.sub}</div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="orders-panel" style={{ marginTop: '20px' }}>
+           <div className="orders-panel-header"><span className="orders-title">{t.lowStockAlerts}</span></div>
+           <table className="orders-table">
+             <thead><tr><th>{t.productId}</th><th>{t.productName}</th><th>{t.stockLevel}</th></tr></thead>
+             <tbody>
+               {lowStockProducts.length === 0 ? <tr><td colSpan="3">{t.noLowStock}</td></tr> : lowStockProducts.map(p => (
+                 <tr key={p.id}><td className="order-id">{g(p.id)}</td><td>{p.name}</td><td style={{color: '#e05c5c', fontWeight: 'bold'}}>{g(p.stock)} {t.units}</td></tr>
+               ))}
+             </tbody>
+           </table>
+        </div>
+
+        <div className="orders-panel" style={{ marginTop: '20px' }}>
+           <div className="orders-panel-header"><span className="orders-title">{t.todaysTransactions}</span></div>
+           <table className="orders-table">
+             <thead><tr><th>{t.txId}</th><th>{t.type}</th><th>{t.party}</th><th>{t.amount}</th><th>{t.status}</th></tr></thead>
+             <tbody>
+               {todaysTx.length === 0 ? <tr><td colSpan="5">{t.noTransactionsToday}</td></tr> : todaysTx.map(tx => (
+                 <tr key={tx.id}><td className="order-id">{g(tx.id)}</td><td><span style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '4px', background: tx.type === 'Sell' ? '#e6f8f0' : '#fff8ee', color: tx.type === 'Sell' ? '#2dab6f' : '#f4a12a' }}>{tx.type === 'Sell' ? t.sell.replace(' →','') : t.buy}</span></td><td>{tx.party}</td><td>{g(tx.amount)}</td><td>{tx.status}</td></tr>
+               ))}
+             </tbody>
+           </table>
+        </div>
+      </div>
+    );
+  }
 
   // ── Dynamic calculations from live data ──
-  // Total Receivable = sum of all Sell transactions with status Received
   const totalReceivable = history
     .filter(h => h.type === 'Sell' && h.status === 'Received')
     .reduce((sum, h) => sum + parseAmount(h.amount), 0);
 
-  // Total Payable = sum of all Buy transactions with status Pending
   const totalPayable = history
     .filter(h => h.type === 'Buy' && h.status === 'Pending')
     .reduce((sum, h) => sum + parseAmount(h.amount), 0);
 
-  // Pending Orders = orders not yet delivered
   const pendingOrdersCount = orders.filter(o => o.status !== 'Delivered').length;
-
-  // Delivered Orders count
   const deliveredCount = orders.filter(o => o.status === 'Delivered').length;
-
-  // Net Balance = Receivable - Payable
   const netBalance = totalReceivable - totalPayable;
-
-  const formatINR = (n) => `₹${Math.abs(n).toLocaleString('en-IN')}`;
 
   const STATS = [
     {
-      label: 'TO RECEIVE (RECEIVABLE)',
+      label: t.toReceive,
       value: formatINR(totalReceivable),
       color: '#2dab6f',
-      sub: `${history.filter(h => h.type === 'Sell' && h.status === 'Received').length} received payments →`,
+      sub: `${g(history.filter(h => h.type === 'Sell' && h.status === 'Received').length)} ${t.receivedPayments}`,
       path: '/transactions?tab=history'
     },
     {
-      label: 'TO PAY (PAYABLE)',
+      label: t.toPay,
       value: formatINR(totalPayable),
       color: '#e05c5c',
-      sub: `${history.filter(h => h.type === 'Buy' && h.status === 'Pending').length} pending payments →`,
+      sub: `${g(history.filter(h => h.type === 'Buy' && h.status === 'Pending').length)} ${t.pendingPayments}`,
       path: '/transactions?tab=history'
     },
     {
-      label: 'PENDING ORDERS',
-      value: String(pendingOrdersCount),
+      label: t.pendingOrders,
+      value: g(String(pendingOrdersCount)),
       color: '#f4a12a',
-      sub: `${deliveredCount} delivered →`,
+      sub: `${g(deliveredCount)} ${t.delivered}`,
       path: '/orders'
     },
     {
-      label: 'NET BALANCE',
+      label: t.netBalance,
       value: `${netBalance >= 0 ? '' : '−'}${formatINR(netBalance)}`,
       color: netBalance >= 0 ? '#3e97b9' : '#e05c5c',
-      sub: 'Receivable − Payable →',
+      sub: t.receivableMinusPayable,
       path: '/transactions?tab=history'
     },
   ];
 
   return (
     <div className="dash">
-
-      {/* ── Stat Cards ─────────────────────── */}
       <div className="stat-row">
         {STATS.map(s => (
-          <div
-            className="stat-card"
-            key={s.label}
-            style={{ borderLeftColor: s.color, cursor: 'pointer' }}
-            onClick={() => navigate(s.path)}
-          >
+          <div className="stat-card" key={s.label} style={{ borderLeftColor: s.color, cursor: 'pointer' }} onClick={() => navigate(s.path)}>
             <div className="stat-label">{s.label}</div>
             <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
             <div className="stat-sub">{s.sub}</div>
@@ -175,49 +216,44 @@ export default function Dashboard({ orders = [], history = [] }) {
         ))}
       </div>
 
-      {/* ── Payments two-column ─────────────── */}
       <div className="pay-grid">
-        <PaySection title="Payments to Receive" icon="" data={RECEIVE} />
-        <PaySection title="Payments to Make" icon="" data={PAY} />
+        <PaySection title={t.paymentsToReceive} icon="" data={RECEIVE} t={t} g={g} />
+        <PaySection title={t.paymentsToMake} icon="" data={PAY} t={t} g={g} />
       </div>
 
-      {/* ── Pending Orders Table ─────────────── */}
       <div className="orders-panel">
         <div className="orders-panel-header">
-          <span className="orders-title">Pending Orders – Production Status</span>
-          <a href="/orders" className="view-all-link">View All Orders →</a>
+          <span className="orders-title">{t.pendingOrdersProduction}</span>
+          <a href="/orders" className="view-all-link">{t.viewAllOrders}</a>
         </div>
 
         <table className="orders-table">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Product</th>
-              <th>Qty</th>
-              <th>Due Date</th>
-              <th>Progress</th>
-              <th>Status</th>
+              <th>{t.orderId}</th>
+              <th>{t.customer}</th>
+              <th>{t.product}</th>
+              <th>{t.qty}</th>
+              <th>{t.dueDate}</th>
+              <th>{t.progress}</th>
+              <th>{t.status}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {DASHBOARD_ORDERS.map(o => (
               <tr key={o.id}>
-                <td className="order-id">{o.id}</td>
+                <td className="order-id">{g(o.id)}</td>
                 <td className="order-customer">{o.customer}</td>
                 <td>{o.product}</td>
-                <td>{o.qty}</td>
-                <td className={o.due.includes('Feb') ? 'due-soon' : ''}>{o.due}</td>
+                <td>{g(o.qty)}</td>
+                <td className={o.due.includes('Feb') ? 'due-soon' : ''}>{g(o.due)}</td>
                 <td>
                   <div className="progress-wrap">
                     <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${o.progress}%` }}
-                      />
+                      <div className="progress-fill" style={{ width: `${o.progress}%` }} />
                     </div>
-                    <span className="progress-pct">{o.progress}%</span>
+                    <span className="progress-pct">{g(o.progress)}%</span>
                   </div>
                 </td>
                 <td>
@@ -225,13 +261,12 @@ export default function Dashboard({ orders = [], history = [] }) {
                     {o.status}
                   </span>
                 </td>
-                <td><a href="/orders" className="sell-link">Sell →</a></td>
+                <td><a href="/orders" className="sell-link">{t.sell}</a></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }

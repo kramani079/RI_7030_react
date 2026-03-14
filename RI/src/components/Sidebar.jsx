@@ -1,23 +1,39 @@
 import { NavLink } from 'react-router-dom';
-
-const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Home' },
-  { to: '/orders', label: 'Orders' },
-  { to: '/inventory', label: 'Inventory' },
-  { to: '/employees', label: 'Employees' },
-  { to: '/transactions', label: 'Transactions' },
-];
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Sidebar() {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+
+  const ADMIN_NAV_ITEMS = [
+    { to: '/dashboard', label: t.home },
+    { to: '/orders', label: t.orders },
+    { to: '/inventory', label: t.inventory },
+    { to: '/employees', label: t.employees },
+    { to: '/transactions', label: t.transactions },
+    { to: '/salary', label: t.salary },
+  ];
+
+  const EMPLOYEE_NAV_ITEMS = [
+    { to: '/employee/dashboard', label: t.home },
+    { to: '/employee/orders', label: t.orders },
+    { to: '/employee/inventory', label: t.inventory },
+    { to: '/employee/transactions', label: t.transactions },
+    { to: '/employee/salary', label: t.salary },
+  ];
+
+  const NAV_ITEMS = user?.role === 'Employee' ? EMPLOYEE_NAV_ITEMS : ADMIN_NAV_ITEMS;
+
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">RI</div>
       <ul className="sidebar-nav">
         {NAV_ITEMS.map(({ to, icon, label }) => (
-          <li key={label}>
+          <li key={to}>
             <NavLink
               to={to}
-              end={to === '/dashboard'}
+              end={to.endsWith('/dashboard')}
               className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'}
             >
               <span className="sidebar-icon">{icon}</span>
@@ -29,3 +45,4 @@ export default function Sidebar() {
     </aside>
   );
 }
+

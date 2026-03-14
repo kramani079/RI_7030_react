@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import './Orders.css';
 
 const STATUS_STYLE = {
@@ -27,6 +29,8 @@ function getNextTxId(history) {
 }
 
 export default function Orders({ orders, setOrders, onTransaction, products, history }) {
+  const { user } = useAuth();
+  const { t, g } = useLanguage();
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -53,7 +57,6 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
   }, [form.qty, form.unitPrice]);
 
   const visible = orders.filter(o => {
-    // When filter is 'All', exclude Delivered. Otherwise match the selected filter.
     if (filter === 'All' && o.status === 'Delivered') return false;
     const matchFilter = filter === 'All' || o.status === filter;
     const q = search.toLowerCase();
@@ -67,7 +70,6 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
       return;
     }
 
-    // Stock Validation
     const targetProduct = products.find(p =>
       (o.productId && p.id === o.productId) ||
       (p.name && p.name.toLowerCase() === o.product.toLowerCase())
@@ -84,14 +86,12 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
     }
 
     if (window.confirm(`Dispatch order ${o.id} for ${o.customer}?\nThis will mark it as Delivered and record the payment in Transactions.`)) {
-      // 1. Mark order as Delivered
       setOrders(prev =>
         prev.map(order =>
           order.id === o.id ? { ...order, status: 'Delivered' } : order
         )
       );
 
-      // 2. Log in Transaction History
       const tx = {
         id: getNextTxId(history),
         type: 'Sell',
@@ -144,24 +144,30 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
     setShowModal(true);
   }
 
+  const FILTER_LABELS = {
+    'All': t.all, 'Pending': t.pending, 'In Production': t.inProduction, 'Ready': t.ready, 'Delivered': t.delivered2
+  };
+
   return (
     <div className="orders-page">
       <div className="orders-header">
-        <h2 className="orders-title">Orders Management</h2>
-        <button className="btn-new-order" onClick={() => {
-          setEditOrder(null);
-          setForm({ customer: '', email: '', productId: '', product: '', qty: '', unitPrice: '', amount: '', dueDate: '' });
-          setShowModal(true);
-        }}>+ Create New Order</button>
+        <h2 className="orders-title">{t.ordersManagement}</h2>
+        {user?.role !== 'Employee' && (
+          <button className="btn-new-order" onClick={() => {
+            setEditOrder(null);
+            setForm({ customer: '', email: '', productId: '', product: '', qty: '', unitPrice: '', amount: '', dueDate: '' });
+            setShowModal(true);
+          }}>{t.createNewOrder}</button>
+        )}
       </div>
 
       <div className="orders-search-wrap">
-        <input className="orders-search" placeholder="Search orders..." value={search} onChange={e => setSearch(e.target.value)} />
+        <input className="orders-search" placeholder={t.searchOrders} value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
       <div className="orders-filters">
         {['All', 'Pending', 'In Production', 'Ready', 'Delivered'].map(f => (
-          <button key={f} className={`filter-btn ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>{f}</button>
+          <button key={f} className={`filter-btn ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>{FILTER_LABELS[f]}</button>
         ))}
       </div>
 
@@ -169,15 +175,15 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
         <table className="orders-tbl">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Product (ID)</th>
-              <th>Qty</th>
-              <th>Price</th>
-              <th>Amount</th>
-              <th>Production</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t.orderId}</th>
+              <th>{t.customer}</th>
+              <th>{t.productIdCol}</th>
+              <th>{t.qty}</th>
+              <th>{t.price}</th>
+              <th>{t.amount}</th>
+              <th>{t.production}</th>
+              <th>{t.status}</th>
+              <th>{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -185,49 +191,53 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
               const s = STATUS_STYLE[o.status] || STATUS_STYLE.Pending;
               return (
                 <tr key={o.id}>
-                  <td className="td-id">{o.id}</td>
+                  <td className="td-id">{g(o.id)}</td>
                   <td className="td-customer"><strong>{o.customer}</strong><br /><small>{o.email}</small></td>
-                  <td>{o.product} <br /><small style={{ color: '#64748b' }}>{o.productId}</small></td>
-                  <td>{o.qty}</td>
-                  <td>₹{Number(o.unitPrice || 0).toLocaleString('en-IN')}</td>
-                  <td className="td-amount">{o.amount}</td>
+                  <td>{o.product} <br /><small style={{ color: '#64748b' }}>{g(o.productId)}</small></td>
+                  <td>{g(o.qty)}</td>
+                  <td>{g(`₹${Number(o.unitPrice || 0).toLocaleString('en-IN')}`)}</td>
+                  <td className="td-amount">{g(o.amount)}</td>
                   <td>
                     <div className="prod-dots">
                       {Object.keys(o.production).map(k => (
                         <span key={k} className={`prod-dot ${o.production[k] ? 'done' : 'pending'}`}>{k}</span>
                       ))}
-                      <span className="prod-pct">{pct(o.production)}%</span>
+                      <span className="prod-pct">{g(pct(o.production))}%</span>
                     </div>
                   </td>
                   <td><span className="status-chip" style={{ color: s.color, background: s.bg, borderColor: s.border }}>{o.status}</span></td>
                   <td>
                     <div className="action-btns">
-                      <button className="act-view" onClick={() => setViewOrder(o)}>View</button>
-                      <button className="act-edit" onClick={() => openEdit(o)}>Edit</button>
-                      {o.status === 'Delivered' ? (
-                        <span style={{
-                          padding: '5px 12px',
-                          borderRadius: '5px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          border: '1.5px solid #6a8090',
-                          color: '#6a8090',
-                          background: '#f3f6f8',
-                          display: 'inline-block'
-                        }}>✓ Delivered</span>
-                      ) : (
-                        <button className="act-pay" style={{
-                          padding: '5px 12px',
-                          borderRadius: '5px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          border: '1.5px solid #2dab6f',
-                          color: '#2dab6f',
-                          background: 'transparent'
-                        }} onClick={() => handleDispatch(o)}>Dispatch</button>
+                      <button className="act-view" onClick={() => setViewOrder(o)}>{t.view}</button>
+                      {user?.role !== 'Employee' && (
+                        <>
+                          <button className="act-edit" onClick={() => openEdit(o)}>{t.edit}</button>
+                          {o.status === 'Delivered' ? (
+                            <span style={{
+                              padding: '5px 12px',
+                              borderRadius: '5px',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              border: '1.5px solid #6a8090',
+                              color: '#6a8090',
+                              background: '#f3f6f8',
+                              display: 'inline-block'
+                            }}>✓ {t.delivered2}</span>
+                          ) : (
+                            <button className="act-pay" style={{
+                              padding: '5px 12px',
+                              borderRadius: '5px',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              border: '1.5px solid #2dab6f',
+                              color: '#2dab6f',
+                              background: 'transparent'
+                            }} onClick={() => handleDispatch(o)}>{t.dispatch}</button>
+                          )}
+                          <button className="act-del" onClick={() => setOrders(prev => prev.filter(x => x.id !== o.id))}>{t.del}</button>
+                        </>
                       )}
-                      <button className="act-del" onClick={() => setOrders(prev => prev.filter(x => x.id !== o.id))}>Del</button>
                     </div>
                   </td>
                 </tr>
@@ -242,22 +252,22 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
         <div className="modal-overlay" onClick={() => setViewOrder(null)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">Order Details: {viewOrder.id}</span>
+              <span className="modal-title">{t.orderDetails}: {viewOrder.id}</span>
               <button className="modal-close" onClick={() => setViewOrder(null)}>✕</button>
             </div>
             <div className="order-view-details">
-              <p><strong>Customer:</strong> {viewOrder.customer}</p>
-              <p><strong>Email:</strong> {viewOrder.email || 'N/A'}</p>
-              <p><strong>Product:</strong> {viewOrder.product} ({viewOrder.productId || 'N/A'})</p>
-              <p><strong>Quantity:</strong> {viewOrder.qty}</p>
-              <p><strong>Unit Price:</strong> ₹{Number(viewOrder.unitPrice || 0).toLocaleString('en-IN')}</p>
-              <p><strong>Total Amount:</strong> {viewOrder.amount}</p>
-              <p><strong>Due Date:</strong> {viewOrder.dueDate || 'N/A'}</p>
-              <p><strong>Status:</strong> {viewOrder.status}</p>
-              <p><strong>Progress:</strong> {pct(viewOrder.production)}%</p>
+              <p><strong>{t.customer}:</strong> {viewOrder.customer}</p>
+              <p><strong>{t.email}:</strong> {viewOrder.email || t.na}</p>
+              <p><strong>{t.product}:</strong> {viewOrder.product} ({viewOrder.productId || t.na})</p>
+              <p><strong>{t.quantity}:</strong> {g(viewOrder.qty)}</p>
+              <p><strong>{t.unitPrice}:</strong> {g(`₹${Number(viewOrder.unitPrice || 0).toLocaleString('en-IN')}`)}</p>
+              <p><strong>{t.totalAmount}:</strong> {g(viewOrder.amount)}</p>
+              <p><strong>{t.dueDate}:</strong> {g(viewOrder.dueDate) || t.na}</p>
+              <p><strong>{t.status}:</strong> {viewOrder.status}</p>
+              <p><strong>{t.progress}:</strong> {g(pct(viewOrder.production))}%</p>
             </div>
             <div className="modal-actions">
-              <button className="modal-cancel" onClick={() => setViewOrder(null)}>Close</button>
+              <button className="modal-cancel" onClick={() => setViewOrder(null)}>{t.close}</button>
             </div>
           </div>
         </div>
@@ -268,61 +278,61 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">{editOrder ? 'Edit Order' : 'New Order'}</span>
+              <span className="modal-title">{editOrder ? t.editOrder : t.newOrder}</span>
               <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
             </div>
             <form className="modal-form" onSubmit={handleSave}>
               <div className="modal-grid">
                 {!editOrder && (
                   <div className="modal-col">
-                    <label>Order ID (Auto)</label>
-                    <input value={getNextOrderId(orders)} readOnly className="read-only" style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
+                    <label>{t.orderIdAuto}</label>
+                    <input value={g(getNextOrderId(orders))} readOnly className="read-only" style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
                   </div>
                 )}
                 <div className="modal-col">
-                  <label>Customer Name</label>
+                  <label>{t.customerName}</label>
                   <input value={form.customer} onChange={e => setForm(p => ({ ...p, customer: e.target.value }))} required />
                 </div>
                 <div className="modal-col">
-                  <label>Email</label>
+                  <label>{t.email}</label>
                   <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} type="email" />
                 </div>
                 <div className="modal-col">
-                  <label>Product ID</label>
+                  <label>{t.productIdLabel}</label>
                   <input value={form.productId} onChange={e => setForm(p => ({ ...p, productId: e.target.value }))} placeholder="e.g. RI_1001" />
                 </div>
                 <div className="modal-col">
-                  <label>Product Name</label>
+                  <label>{t.productName}</label>
                   <input value={form.product} onChange={e => setForm(p => ({ ...p, product: e.target.value }))} required />
                 </div>
                 <div className="modal-col">
-                  <label>Quantity</label>
+                  <label>{t.quantity}</label>
                   <input value={form.qty} onChange={e => setForm(p => ({ ...p, qty: e.target.value }))} type="number" required />
                 </div>
                 <div className="modal-col">
-                  <label>Unit Price (₹)</label>
+                  <label>{t.unitPriceLabel}</label>
                   <input value={form.unitPrice} onChange={e => setForm(p => ({ ...p, unitPrice: e.target.value }))} type="number" required />
                 </div>
                 <div className="modal-col">
-                  <label>Total Amount (₹)</label>
+                  <label>{t.totalAmountLabel}</label>
                   <input value={form.amount} readOnly className="read-only" />
                 </div>
                 <div className="modal-col">
-                  <label>Due Date</label>
+                  <label>{t.dueDate}</label>
                   <input type="date" value={form.dueDate} onChange={e => setForm(p => ({ ...p, dueDate: e.target.value }))} />
                 </div>
               </div>
               {editOrder && (
                 <div style={{ marginTop: '15px' }}>
-                  <label>Status</label>
+                  <label>{t.status}</label>
                   <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}>
                     {Object.keys(STATUS_STYLE).map(s => <option key={s}>{s}</option>)}
                   </select>
                 </div>
               )}
               <div className="modal-actions">
-                <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="modal-submit">Save Order</button>
+                <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>{t.cancel}</button>
+                <button type="submit" className="modal-submit">{t.saveOrder}</button>
               </div>
             </form>
           </div>

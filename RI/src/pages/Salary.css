@@ -1,0 +1,80 @@
+.salary-page {
+    padding: 24px 32px;
+}
+
+.salary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.salary-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.btn-add-salary {
+    background: #3e97b9;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn-add-salary:hover {
+    background: #2b7a99;
+}
+
+.salary-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    margin-bottom: 24px;
+}
+
+.salary-title {
+    font-size: 18px;
+    color: #334155;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.salary-tbl {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.salary-tbl th, .salary-tbl td {
+    border-bottom: 1px solid #f1f5f9;
+    padding: 14px 16px;
+    text-align: left;
+}
+
+.salary-tbl th {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 13px;
+    background: #f8fafc;
+}
+
+.salary-tbl tbody tr:hover {
+    background: #fcfdfd;
+}
+
+.salary-chip {
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: #e8f4fa;
+    color: #3e97b9;
+    font-size: 12px;
+    font-weight: 600;
+}

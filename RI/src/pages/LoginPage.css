@@ -45,6 +45,20 @@
   background: rgba(255, 255, 255, 0.55);
 }
 
+.nav-pill-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.nav-pill-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 /* White rounded search box */
 .search-box {
   background: #fff;
@@ -320,6 +334,101 @@
 .btn-primary.btn-employee:hover {
   background: #249a60;
   box-shadow: 0 6px 20px rgba(45, 171, 111, 0.38);
+}
+
+/* ── Forgot Password Link ────────────────────────── */
+.forgot-link {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #3e97b9;
+  cursor: pointer;
+  text-align: right;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #2d85a5;
+  text-decoration: underline;
+}
+
+/* ── Forgot Password Panel ───────────────────────── */
+.forgot-panel {
+  margin-top: 14px;
+  padding: 16px;
+  background: #f5fbfe;
+  border: 1.5px solid #c5dde9;
+  border-radius: 10px;
+  animation: fpSlideIn 0.25s ease;
+}
+
+@keyframes fpSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.forgot-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a3344;
+  margin: 0 0 12px;
+}
+
+.forgot-form {
+  gap: 0;
+}
+
+.forgot-submit-btn {
+  margin-top: 10px;
+}
+
+/* ── Forgot Success Message ──────────────────────── */
+.fp-success {
+  background: #e6f8f0;
+  border: 1px solid #b8e5cf;
+  color: #1a7a4d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Email Sent Confirmation Box ─────────────────── */
+.fp-sent-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 10px;
+  animation: fpSlideIn 0.3s ease;
+}
+
+.fp-sent-icon {
+  font-size: 38px;
+  margin-bottom: 10px;
+  animation: fp-bounce 0.5s ease;
+}
+
+@keyframes fp-bounce {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.fp-sent-text {
+  font-size: 12.5px;
+  color: #3d566a;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 4px;
 }
 
 /* ── Register Link ───────────────────────────────── */

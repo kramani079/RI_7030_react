@@ -276,6 +276,88 @@
     transform: translateY(-1px);
 }
 
+/* ── Change Password Section ──────────────────────── */
+.prof-cp-hint {
+    font-size: 13px;
+    color: #7a8fa0;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.prof-cp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+/* Password input wrapper with show/hide toggle */
+.prof-pw-wrap {
+    position: relative;
+}
+
+.prof-pw-wrap input {
+    padding-right: 42px;
+}
+
+.prof-pw-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    opacity: 0.55;
+    transition: opacity 0.2s;
+}
+
+.prof-pw-toggle:hover {
+    opacity: 1;
+}
+
+/* Error banner */
+.prof-cp-error {
+    background: #fff0f0;
+    border: 1px solid #ffccc7;
+    color: #d32f2f;
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    line-height: 1.4;
+    animation: shakeError 0.35s ease;
+}
+
+@keyframes shakeError {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-5px); }
+    40%       { transform: translateX(5px); }
+    60%       { transform: translateX(-3px); }
+    80%       { transform: translateX(3px); }
+}
+
+/* Success banner */
+.prof-cp-success {
+    background: #e6f8f0;
+    border: 1px solid #b8e5cf;
+    color: #1a7a4d;
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    animation: profSlide 0.3s ease;
+}
+
 /* ── Responsive ──────────────────────────────────── */
 @media (max-width: 768px) {
     .prof-page {

@@ -1,9 +1,47 @@
 import { useState, useEffect } from 'react';
 import './Profile.css';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Profile({ user, onUpdateUser }) {
+    const { lang, toggleLanguage } = useLanguage();
     const [editSection, setEditSection] = useState(null); // 'header', 'personal', 'address'
     const [message, setMessage] = useState('');
+
+    // ── Change Password state ──────────────────────────
+    const [showChangePwd, setShowChangePwd] = useState(false);
+    const [cpCurrent, setCpCurrent] = useState('');
+    const [cpNew, setCpNew] = useState('');
+    const [cpConfirm, setCpConfirm] = useState('');
+    const [cpError, setCpError] = useState('');
+    const [cpSuccess, setCpSuccess] = useState('');
+    const [showCpCurrent, setShowCpCurrent] = useState(false);
+    const [showCpNew, setShowCpNew] = useState(false);
+    const [showCpConfirm, setShowCpConfirm] = useState(false);
+
+    function handleChangePassword(e) {
+        e.preventDefault();
+        setCpError('');
+        setCpSuccess('');
+
+        if (!cpCurrent) { setCpError('Please enter your current password.'); return; }
+        if (!cpNew) { setCpError('Please enter a new password.'); return; }
+        if (cpNew.length < 6) { setCpError('New password must be at least 6 characters.'); return; }
+        if (cpNew === cpCurrent) { setCpError('New password must be different from the current password.'); return; }
+        if (cpNew !== cpConfirm) { setCpError('Passwords do not match.'); return; }
+
+        const users = JSON.parse(localStorage.getItem('ri_users') || '[]');
+        const idx = users.findIndex(u => u.email === user?.email);
+        if (idx === -1) { setCpError('User account not found.'); return; }
+        if (users[idx].password !== cpCurrent) { setCpError('Current password is incorrect.'); return; }
+
+        users[idx].password = cpNew;
+        localStorage.setItem('ri_users', JSON.stringify(users));
+        setCpSuccess('Password changed successfully!');
+        setCpCurrent('');
+        setCpNew('');
+        setCpConfirm('');
+        setTimeout(() => { setShowChangePwd(false); setCpSuccess(''); }, 2500);
+    }
 
     const [formData, setFormData] = useState({
         name: user?.name || 'Admin User',
@@ -264,6 +302,132 @@ export default function Profile({ user, onUpdateUser }) {
                         <button className="prof-cancel-btn" onClick={handleCancel}>Cancel</button>
                         <button className="prof-save-btn" onClick={handleSave}>Save</button>
                     </div>
+                )}
+            </div>
+            {/* ── Section 4: Language Preferences ─────── */}
+            <div className="prof-section-card">
+                <div className="prof-section-header">
+                    <h3 className="prof-section-title">Language / ભાષા</h3>
+                </div>
+                <p className="prof-cp-hint">Choose your preferred language for the entire application.</p>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                    <button
+                        onClick={() => lang !== 'en' && toggleLanguage()}
+                        style={{
+                            padding: '10px 24px',
+                            borderRadius: '8px',
+                            border: `2px solid ${lang === 'en' ? '#3e97b9' : '#dde3ea'}`,
+                            background: lang === 'en' ? '#e8f4fa' : '#fff',
+                            color: lang === 'en' ? '#3e97b9' : '#64748b',
+                            fontWeight: lang === 'en' ? '700' : '500',
+                            cursor: lang === 'en' ? 'default' : 'pointer',
+                            fontSize: '14px',
+                            transition: 'all 0.2s',
+                        }}
+                    >
+                        {lang === 'en' && <span style={{ marginRight: '6px' }}>✓</span>}English
+                    </button>
+                    <button
+                        onClick={() => lang !== 'gu' && toggleLanguage()}
+                        style={{
+                            padding: '10px 24px',
+                            borderRadius: '8px',
+                            border: `2px solid ${lang === 'gu' ? '#3e97b9' : '#dde3ea'}`,
+                            background: lang === 'gu' ? '#e8f4fa' : '#fff',
+                            color: lang === 'gu' ? '#3e97b9' : '#64748b',
+                            fontWeight: lang === 'gu' ? '700' : '500',
+                            cursor: lang === 'gu' ? 'default' : 'pointer',
+                            fontSize: '14px',
+                            transition: 'all 0.2s',
+                        }}
+                    >
+                        {lang === 'gu' && <span style={{ marginRight: '6px' }}>✓</span>}ગુજરાતી
+                    </button>
+                </div>
+                {lang === 'gu' && (
+                    <p style={{ marginTop: '10px', fontSize: '13px', color: '#2dab6f', fontWeight: '600' }}>
+                        ✓ ગુજરાતી ભાષા સક્રિય છે — બધા પૃષ્ઠો ગુજરાતીમાં બતાવવામાં આવ્યા છે.
+                    </p>
+                )}
+            </div>
+
+            {/* ── Section 5: Change Password ─────────── */}
+            <div className="prof-section-card">
+                <div className="prof-section-header">
+                    <h3 className="prof-section-title">Change Password</h3>
+                    <button
+                        className="prof-edit-btn"
+                        onClick={() => { setShowChangePwd(p => !p); setCpError(''); setCpSuccess(''); }}
+                    >
+                        {showChangePwd ? 'Close' : 'Change'} <span className="prof-edit-icon">{showChangePwd ? '✕' : '🔒'}</span>
+                    </button>
+                </div>
+
+                {!showChangePwd && (
+                    <p className="prof-cp-hint">Keep your account secure by updating your password regularly.</p>
+                )}
+
+                {showChangePwd && (
+                    <>
+                        {cpError && (
+                            <div className="prof-cp-error">
+                                <span>⚠</span> {cpError}
+                            </div>
+                        )}
+                        {cpSuccess && (
+                            <div className="prof-cp-success">
+                                <span>✓</span> {cpSuccess}
+                            </div>
+                        )}
+                        <form onSubmit={handleChangePassword} className="prof-cp-form">
+                            <div className="prof-field">
+                                <label>Current Password</label>
+                                <div className="prof-pw-wrap">
+                                    <input
+                                        type={showCpCurrent ? 'text' : 'password'}
+                                        placeholder="Enter current password"
+                                        value={cpCurrent}
+                                        onChange={e => { setCpCurrent(e.target.value); setCpError(''); }}
+                                    />
+                                    <button type="button" className="prof-pw-toggle" onClick={() => setShowCpCurrent(p => !p)} tabIndex={-1}>
+                                        {showCpCurrent ? '🙈' : '👁'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="prof-field">
+                                <label>New Password</label>
+                                <div className="prof-pw-wrap">
+                                    <input
+                                        type={showCpNew ? 'text' : 'password'}
+                                        placeholder="Min. 6 characters"
+                                        value={cpNew}
+                                        onChange={e => { setCpNew(e.target.value); setCpError(''); }}
+                                    />
+                                    <button type="button" className="prof-pw-toggle" onClick={() => setShowCpNew(p => !p)} tabIndex={-1}>
+                                        {showCpNew ? '🙈' : '👁'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="prof-field">
+                                <label>Confirm New Password</label>
+                                <div className="prof-pw-wrap">
+                                    <input
+                                        type={showCpConfirm ? 'text' : 'password'}
+                                        placeholder="Re-enter new password"
+                                        value={cpConfirm}
+                                        onChange={e => { setCpConfirm(e.target.value); setCpError(''); }}
+                                    />
+                                    <button type="button" className="prof-pw-toggle" onClick={() => setShowCpConfirm(p => !p)} tabIndex={-1}>
+                                        {showCpConfirm ? '🙈' : '👁'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="prof-edit-actions">
+                                <button type="button" className="prof-cancel-btn" onClick={() => { setShowChangePwd(false); setCpError(''); setCpSuccess(''); setCpCurrent(''); setCpNew(''); setCpConfirm(''); }}>Cancel</button>
+                                <button type="submit" className="prof-save-btn">Update Password</button>
+                            </div>
+                        </form>
+                    </>
                 )}
             </div>
         </div>

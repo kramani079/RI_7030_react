@@ -1,29 +1,41 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import {
+  generateResetToken,
+  saveResetToken,
+  buildResetLink,
+  sendResetEmail,
+  isEmailConfigured,
+} from '../services/emailService';
 import './LoginPage.css';
 
 export default function LoginPage({ onLogin }) {
   const [loginType, setLoginType] = useState('Admin');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [error, setError]         = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  // ── Forgot Password state ───────────────────────────
+  const [showForgot, setShowForgot] = useState(false);
+  const [fpEmail, setFpEmail]       = useState('');
+  const [fpError, setFpError]       = useState('');
+  const [fpLoading, setFpLoading]   = useState(false);
+
+  // After success: either 'email' (sent to inbox) or the reset link string (shown on screen)
+  const [fpSentMode, setFpSentMode]   = useState(null); // null | 'email' | 'link'
+  const [fpResetLink, setFpResetLink] = useState('');
+  const [fpCopied, setFpCopied]       = useState(false);
+
+  // ── Login submit ────────────────────────────────────
   function submit(e) {
     e.preventDefault();
     setError('');
 
-    if (!email.trim()) {
-      setError('Please enter your email');
-      return;
-    }
-    if (!password.trim()) {
-      setError('Please enter your password');
-      return;
-    }
+    if (!email.trim()) { setError('Please enter your email'); return; }
+    if (!password.trim()) { setError('Please enter your password'); return; }
 
-    // Lookup from localStorage
     const users = JSON.parse(localStorage.getItem('ri_users') || '[]');
     const found = users.find(u => u.email === email.toLowerCase().trim());
 
@@ -31,19 +43,15 @@ export default function LoginPage({ onLogin }) {
       setError('No account found with this email. Please register first.');
       return;
     }
-
     if (found.password !== password) {
       setError('Incorrect password. Please try again.');
       return;
     }
-
-    // Check role match
     if (found.role !== loginType) {
       setError(`This account is registered as "${found.role}". Please use the ${found.role} login tab.`);
       return;
     }
 
-    // Login success
     const user = {
       name: found.fullName,
       email: found.email,
@@ -54,7 +62,71 @@ export default function LoginPage({ onLogin }) {
     };
 
     onLogin(user);
-    navigate('/dashboard', { replace: true });
+
+    if (user.role === 'Employee') {
+      navigate('/employee/dashboard', { replace: true });
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
+  }
+
+  // ── Forgot Password ─────────────────────────────────
+  async function handleSendResetLink(e) {
+    e.preventDefault();
+    setFpError('');
+
+    const trimEmail = fpEmail.toLowerCase().trim();
+    if (!trimEmail) { setFpError('Please enter your registered email.'); return; }
+
+    const users = JSON.parse(localStorage.getItem('ri_users') || '[]');
+    const found = users.find(u => u.email === trimEmail);
+    if (!found) {
+      setFpError('No account found with this email address.');
+      return;
+    }
+
+    setFpLoading(true);
+
+    const token = generateResetToken();
+    saveResetToken(trimEmail, token);
+    const resetLink = buildResetLink(token);
+
+    if (isEmailConfigured()) {
+      // ── Real email via EmailJS ──
+      try {
+        await sendResetEmail(trimEmail, found.fullName || found.name || '', token);
+        setFpSentMode('email');
+        setFpEmail('');
+      } catch (err) {
+        console.error('EmailJS error:', err);
+        setFpError('Failed to send email. Showing your reset link below instead.');
+        setFpResetLink(resetLink);
+        setFpSentMode('link');
+      }
+    } else {
+      // ── EmailJS not configured → show the link on screen ──
+      setFpResetLink(resetLink);
+      setFpSentMode('link');
+      setFpEmail('');
+    }
+
+    setFpLoading(false);
+  }
+
+  function handleCopyLink() {
+    navigator.clipboard.writeText(fpResetLink).then(() => {
+      setFpCopied(true);
+      setTimeout(() => setFpCopied(false), 2000);
+    });
+  }
+
+  function toggleForgot() {
+    setShowForgot(f => !f);
+    setFpError('');
+    setFpEmail('');
+    setFpSentMode(null);
+    setFpResetLink('');
+    setFpCopied(false);
   }
 
   return (
@@ -103,77 +175,179 @@ export default function LoginPage({ onLogin }) {
                 className={`login-type-btn ${loginType === 'Admin' ? 'active admin-active' : ''}`}
                 onClick={() => { setLoginType('Admin'); setError(''); }}
               >
-                <span className="login-type-icon">🔐</span>
-                Admin
+                <span className="login-type-icon">🔐</span>Admin
               </button>
               <button
                 type="button"
                 className={`login-type-btn ${loginType === 'Employee' ? 'active employee-active' : ''}`}
                 onClick={() => { setLoginType('Employee'); setError(''); }}
               >
-                <span className="login-type-icon">👤</span>
-                Employee
+                <span className="login-type-icon">👤</span>Employee
               </button>
             </div>
 
-            <h1 className="login-title">
-              {loginType === 'Admin' ? 'Admin Login' : 'Employee Login'}
-            </h1>
-            <p className="login-subtitle">
-              {loginType === 'Admin'
-                ? 'Sign in with your admin credentials'
-                : 'Sign in with your employee credentials'}
-            </p>
+            {!showForgot ? (
+              /* ══ NORMAL LOGIN ══ */
+              <>
+                <h1 className="login-title">
+                  {loginType === 'Admin' ? 'Admin Login' : 'Employee Login'}
+                </h1>
+                <p className="login-subtitle">
+                  {loginType === 'Admin'
+                    ? 'Sign in with your admin credentials'
+                    : 'Sign in with your employee credentials'}
+                </p>
 
-            {error && (
-              <div className="login-error">
-                <span className="login-error-icon">⚠</span>
-                {error}
-              </div>
+                {error && (
+                  <div className="login-error">
+                    <span className="login-error-icon">⚠</span>{error}
+                  </div>
+                )}
+
+                <form className="login-form" onSubmit={submit}>
+                  <div className="field-group">
+                    <label className="field-label" htmlFor="login-email">Email ID</label>
+                    <input
+                      id="login-email"
+                      className="field"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={e => { setEmail(e.target.value); setError(''); }}
+                      autoComplete="email"
+                      type="email"
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label" htmlFor="login-password">Password</label>
+                    <div className="password-wrap">
+                      <input
+                        id="login-password"
+                        type={showPassword ? 'text' : 'password'}
+                        className="field"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={e => { setPassword(e.target.value); setError(''); }}
+                        autoComplete="current-password"
+                      />
+                      <button
+                        type="button"
+                        className="toggle-pass-btn"
+                        onClick={() => setShowPassword(p => !p)}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? '🙈' : '👁'}
+                      </button>
+                    </div>
+                    <button type="button" className="forgot-link" onClick={toggleForgot}>
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <button
+                    className={`btn-primary ${loginType === 'Employee' ? 'btn-employee' : ''}`}
+                    type="submit"
+                  >
+                    Login as {loginType}
+                  </button>
+                </form>
+              </>
+            ) : (
+              /* ══ FORGOT PASSWORD ══ */
+              <>
+                <h1 className="login-title">Forgot Password</h1>
+                <p className="login-subtitle">
+                  Enter your registered email to receive a password reset link.
+                </p>
+
+                {fpError && (
+                  <div className="login-error">
+                    <span className="login-error-icon">⚠</span>{fpError}
+                  </div>
+                )}
+
+                {/* ── Step 1: Email input ── */}
+                {!fpSentMode && (
+                  <form className="login-form" onSubmit={handleSendResetLink}>
+                    <div className="field-group">
+                      <label className="field-label" htmlFor="fp-email">Registered Email</label>
+                      <input
+                        id="fp-email"
+                        type="email"
+                        className="field"
+                        placeholder="Enter your email address"
+                        value={fpEmail}
+                        onChange={e => { setFpEmail(e.target.value); setFpError(''); }}
+                        autoComplete="email"
+                        autoFocus
+                      />
+                    </div>
+                    <button type="submit" className="btn-primary" disabled={fpLoading}>
+                      {fpLoading ? 'Processing…' : '🔑 Send Password Reset Link'}
+                    </button>
+                    <button type="button" className="forgot-link" onClick={toggleForgot}>
+                      ← Back to Login
+                    </button>
+                  </form>
+                )}
+
+                {/* ── Step 2a: Email sent successfully ── */}
+                {fpSentMode === 'email' && (
+                  <div className="fp-sent-box">
+                    <div className="fp-sent-icon">✉</div>
+                    <p className="fp-sent-text">
+                      Reset link sent! Check your inbox (and spam folder).<br />
+                      The link is valid for <strong>30 minutes</strong>.
+                    </p>
+                    <button type="button" className="btn-primary" onClick={toggleForgot} style={{ marginTop: '14px' }}>
+                      Back to Login
+                    </button>
+                  </div>
+                )}
+
+                {/* ── Step 2b: Link shown on screen (EmailJS not configured) ── */}
+                {fpSentMode === 'link' && (
+                  <div className="fp-link-box">
+                    <div className="fp-link-header">
+                      <span className="fp-link-icon">🔑</span>
+                      <div>
+                        <p className="fp-link-title">Your Password Reset Link</p>
+                        <p className="fp-link-sub">Click the link or copy it into your browser. Valid for 30 minutes.</p>
+                      </div>
+                    </div>
+
+                    <a
+                      href={fpResetLink}
+                      className="fp-link-url"
+                      target="_self"
+                    >
+                      {fpResetLink}
+                    </a>
+
+                    <div className="fp-link-actions">
+                      <button
+                        type="button"
+                        className="fp-copy-btn"
+                        onClick={handleCopyLink}
+                      >
+                        {fpCopied ? '✓ Copied!' : '📋 Copy Link'}
+                      </button>
+                      <a href={fpResetLink} className="btn-primary fp-open-btn">
+                        Open Reset Page →
+                      </a>
+                    </div>
+
+                    <p className="fp-link-note">
+                      💡 To send emails automatically, configure EmailJS in<br />
+                      <code>src/services/emailService.js</code>
+                    </p>
+
+                    <button type="button" className="forgot-link" onClick={toggleForgot} style={{ marginTop: '8px' }}>
+                      ← Back to Login
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
-            <form className="login-form" onSubmit={submit}>
-              <div className="field-group">
-                <label className="field-label" htmlFor="login-email">Email ID</label>
-                <input
-                  id="login-email"
-                  className="field"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={e => { setEmail(e.target.value); setError(''); }}
-                  autoComplete="email"
-                  type="email"
-                />
-              </div>
-              <div className="field-group">
-                <label className="field-label" htmlFor="login-password">Password</label>
-                <div className="password-wrap">
-                  <input
-                    id="login-password"
-                    type={showPassword ? 'text' : 'password'}
-                    className="field"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={e => { setPassword(e.target.value); setError(''); }}
-                    autoComplete="current-password"
-                  />
-                  <button
-                    type="button"
-                    className="toggle-pass-btn"
-                    onClick={() => setShowPassword(p => !p)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? '🙈' : '👁'}
-                  </button>
-                </div>
-              </div>
-              <button
-                className={`btn-primary ${loginType === 'Employee' ? 'btn-employee' : ''}`}
-                type="submit"
-              >
-                Login as {loginType}
-              </button>
-            </form>
             <div className="register-line">
               Don't have an account? <Link to="/register">Register here</Link>
             </div>

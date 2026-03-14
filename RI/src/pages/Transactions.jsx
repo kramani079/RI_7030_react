@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import './Transactions.css';
 
 function getNextTxId(history) {
@@ -18,6 +20,8 @@ const STATUS_STYLE = {
 };
 
 export default function Transactions({ history, setHistory, onTransaction, products }) {
+    const { user } = useAuth();
+    const { t, g } = useLanguage();
     const [searchParams] = useSearchParams();
     const [tab, setTab] = useState(searchParams.get('tab') || 'buy');
     const [search, setSearch] = useState('');
@@ -110,110 +114,112 @@ export default function Transactions({ history, setHistory, onTransaction, produ
         setEditModal(false);
     }
 
+    const TAB_LABELS = { buy: t.buy, sell: t.sell.replace(' →',''), history: t.history, due: t.duePayments };
+
     return (
         <div className="tx-page">
             <div className="tx-tabs">
-                {['buy', 'sell', 'history'].map(t => (
-                    <button key={t} className={`tx-tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
-                        {t.charAt(0).toUpperCase() + t.slice(1)}
+                {(user?.role === 'Employee' ? ['buy', 'sell', 'history'] : ['buy', 'sell', 'history', 'due']).map(tabKey => (
+                    <button key={tabKey} className={`tx-tab ${tab === tabKey ? 'active' : ''}`} onClick={() => setTab(tabKey)}>
+                        {TAB_LABELS[tabKey]}
                     </button>
                 ))}
             </div>
 
             {tab === 'buy' && (
                 <div className="tx-form-card">
-                    <h3 className="tx-form-title">New Purchase (Buy)</h3>
+                    <h3 className="tx-form-title">{t.newPurchase}</h3>
                     <form className="tx-grid-form" onSubmit={submitBuy}>
                         <div className="tx-col">
-                            <label className="tx-label">Transaction ID (Auto)</label>
-                            <input className="tx-input read-only" value={getNextTxId(history)} readOnly style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
-                            <label className="tx-label">From (Supplier Name)</label>
+                            <label className="tx-label">{t.transactionIdAuto}</label>
+                            <input className="tx-input read-only" value={g(getNextTxId(history))} readOnly style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
+                            <label className="tx-label">{t.fromSupplier}</label>
                             <input className="tx-input" value={buyForm.supplierName} onChange={e => setBuyForm(p => ({ ...p, supplierName: e.target.value }))} required />
-                            <label className="tx-label">Payment Method</label>
+                            <label className="tx-label">{t.paymentMethod}</label>
                             <select className="tx-select" value={buyForm.paymentMethod} onChange={e => setBuyForm(p => ({ ...p, paymentMethod: e.target.value }))}>
-                                <option>Cash</option><option>UPI</option><option>Bank Transfer</option>
+                                <option value="Cash">{t.cash}</option><option value="UPI">{t.upi}</option><option value="Bank Transfer">{t.bankTransfer}</option><option value="Pending">{t.pending}</option>
                             </select>
-                            <label className="tx-label">Date</label>
+                            <label className="tx-label">{t.date}</label>
                             <input className="tx-input" type="date" value={buyForm.date} onChange={e => setBuyForm(p => ({ ...p, date: e.target.value }))} />
                         </div>
                         <div className="tx-col">
-                            <label className="tx-label">Product ID</label>
+                            <label className="tx-label">{t.productIdLabel}</label>
                             <input className="tx-input" value={buyForm.productId} onChange={e => setBuyForm(p => ({ ...p, productId: e.target.value }))} placeholder="RI_100x" />
-                            <label className="tx-label">Product Name</label>
+                            <label className="tx-label">{t.productName}</label>
                             <input className="tx-input" value={buyForm.product} onChange={e => setBuyForm(p => ({ ...p, product: e.target.value }))} required />
                         </div>
                         <div className="tx-col">
-                            <label className="tx-label">Quantity</label>
+                            <label className="tx-label">{t.quantity}</label>
                             <input className="tx-input" type="number" value={buyForm.quantity} onChange={e => setBuyForm(p => ({ ...p, quantity: e.target.value }))} required />
-                            <label className="tx-label">Unit Price (₹)</label>
+                            <label className="tx-label">{t.unitPriceLabel}</label>
                             <input className="tx-input" type="number" value={buyForm.unitPrice} onChange={e => setBuyForm(p => ({ ...p, unitPrice: e.target.value }))} required />
-                            <label className="tx-label">Total Amount (₹)</label>
-                            <input className="tx-input read-only" value={buyForm.amount} readOnly />
+                            <label className="tx-label">{t.totalAmountLabel}</label>
+                            <input className="tx-input read-only" value={g(buyForm.amount)} readOnly />
                         </div>
-                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit">Complete Purchase</button></div>
+                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit">{t.completePurchase}</button></div>
                     </form>
                 </div>
             )}
 
             {tab === 'sell' && (
                 <div className="tx-form-card">
-                    <h3 className="tx-form-title">New Sale (Sell)</h3>
+                    <h3 className="tx-form-title">{t.newSale}</h3>
                     <form className="tx-grid-form" onSubmit={submitSell}>
                         <div className="tx-col">
-                            <label className="tx-label">Transaction ID (Auto)</label>
-                            <input className="tx-input read-only" value={getNextTxId(history)} readOnly style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
-                            <label className="tx-label">To (Customer Name)</label>
+                            <label className="tx-label">{t.transactionIdAuto}</label>
+                            <input className="tx-input read-only" value={g(getNextTxId(history))} readOnly style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
+                            <label className="tx-label">{t.toCustomer}</label>
                             <input className="tx-input" value={sellForm.customerName} onChange={e => setSellForm(p => ({ ...p, customerName: e.target.value }))} required />
-                            <label className="tx-label">Payment Method</label>
+                            <label className="tx-label">{t.paymentMethod}</label>
                             <select className="tx-select" value={sellForm.paymentMethod} onChange={e => setSellForm(p => ({ ...p, paymentMethod: e.target.value }))}>
-                                <option>Cash</option><option>UPI</option><option>Bank Transfer</option>
+                                <option value="Cash">{t.cash}</option><option value="UPI">{t.upi}</option><option value="Bank Transfer">{t.bankTransfer}</option><option value="Pending">{t.pending}</option>
                             </select>
-                            <label className="tx-label">Date</label>
+                            <label className="tx-label">{t.date}</label>
                             <input className="tx-input" type="date" value={sellForm.date} onChange={e => setSellForm(p => ({ ...p, date: e.target.value }))} />
                         </div>
                         <div className="tx-col">
-                            <label className="tx-label">Product ID</label>
+                            <label className="tx-label">{t.productIdLabel}</label>
                             <input className="tx-input" value={sellForm.productId} onChange={e => setSellForm(p => ({ ...p, productId: e.target.value }))} placeholder="RI_100x" />
-                            <label className="tx-label">Product Name</label>
+                            <label className="tx-label">{t.productName}</label>
                             <input className="tx-input" value={sellForm.product} onChange={e => setSellForm(p => ({ ...p, product: e.target.value }))} required />
                         </div>
                         <div className="tx-col">
-                            <label className="tx-label">Quantity</label>
+                            <label className="tx-label">{t.quantity}</label>
                             <input className="tx-input" type="number" value={sellForm.quantity} onChange={e => setSellForm(p => ({ ...p, quantity: e.target.value }))} required />
-                            <label className="tx-label">Selling Price (₹)</label>
+                            <label className="tx-label">{t.sellingPrice}</label>
                             <input className="tx-input" type="number" value={sellForm.sellingPrice} onChange={e => setSellForm(p => ({ ...p, sellingPrice: e.target.value }))} required />
-                            <label className="tx-label">Total Amount (₹)</label>
-                            <input className="tx-input read-only" value={sellForm.amount} readOnly />
+                            <label className="tx-label">{t.totalAmountLabel}</label>
+                            <input className="tx-input read-only" value={g(sellForm.amount)} readOnly />
                         </div>
-                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit">Complete Sale</button></div>
+                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit">{t.completeSale}</button></div>
                     </form>
                 </div>
             )}
 
             {tab === 'history' && (
                 <div className="tx-history-card">
-                    <h3 className="tx-form-title">Transaction Records</h3>
+                    <h3 className="tx-form-title">{t.transactionRecords}</h3>
                     <div className="tx-search-wrap">
-                        <input className="tx-search" placeholder="Search history..." value={search} onChange={e => setSearch(e.target.value)} />
+                        <input className="tx-search" placeholder={t.searchHistory} value={search} onChange={e => setSearch(e.target.value)} />
                     </div>
                     <div className="tx-table-wrap">
                         <table className="tx-tbl">
                             <thead>
-                                <tr><th>Tx ID</th><th>Type</th><th>Party</th><th>Product (ID)</th><th>Qty</th><th>Total Amount</th><th>Status</th><th>Actions</th></tr>
+                                <tr><th>{t.txId}</th><th>{t.type}</th><th>{t.party}</th><th>{t.productIdCol}</th><th>{t.qty}</th><th>{t.totalAmountCol}</th><th>{t.status}</th>{user?.role !== 'Employee' && <th>{t.actions}</th>}</tr>
                             </thead>
                             <tbody>
                                 {filteredHistory.map(h => {
                                     const s = STATUS_STYLE[h.status] || STATUS_STYLE.Pending;
                                     return (
                                         <tr key={h.id}>
-                                            <td className="tx-id">{h.id}</td>
-                                            <td><span className={`tx-type-chip ${h.type.toLowerCase()}`}>{h.type}</span></td>
+                                            <td className="tx-id">{g(h.id)}</td>
+                                            <td><span className={`tx-type-chip ${h.type.toLowerCase()}`}>{h.type === 'Buy' ? t.buy : t.sell.replace(' →','')}</span></td>
                                             <td>{h.party}</td>
-                                            <td>{h.product} <br /><small style={{ color: '#64748b' }}>{h.productId}</small></td>
-                                            <td>{h.qty}</td>
-                                            <td>{h.amount}</td>
+                                            <td>{h.product} <br /><small style={{ color: '#64748b' }}>{g(h.productId)}</small></td>
+                                            <td>{g(h.qty)}</td>
+                                            <td>{g(h.amount)}</td>
                                             <td><span className="tx-status-chip" style={{ color: s.color, background: s.bg }}>{h.status}</span></td>
-                                            <td><button className="tx-edit-btn" onClick={() => openEdit(h)}>Edit</button></td>
+                                            {user?.role !== 'Employee' && <td><button className="tx-edit-btn" onClick={() => openEdit(h)}>{t.edit}</button></td>}
                                         </tr>
                                     );
                                 })}
@@ -223,35 +229,75 @@ export default function Transactions({ history, setHistory, onTransaction, produ
                 </div>
             )}
 
+            {tab === 'due' && user?.role !== 'Employee' && (
+                <div className="tx-history-card">
+                    <h3 className="tx-form-title">{t.duePayments}</h3>
+                    <div className="tx-table-wrap">
+                        <table className="tx-tbl">
+                            <thead>
+                                <tr><th>{t.txId}</th><th>{t.type}</th><th>{t.party}</th><th>{t.description}</th><th>{t.amount}</th><th>{t.status}</th><th>{t.action}</th></tr>
+                            </thead>
+                            <tbody>
+                                {history.filter(h => h.status === 'Pending').map(h => (
+                                    <tr key={h.id}>
+                                        <td className="tx-id">{g(h.id)}</td>
+                                        <td><span className={`tx-type-chip ${h.type.toLowerCase()}`}>{h.type === 'Buy' ? t.buy : t.sell.replace(' →','')}</span></td>
+                                        <td>{h.party}</td>
+                                        <td>{h.product}</td>
+                                        <td><strong style={{ color: h.type === 'Buy' ? '#e05c5c' : '#2dab6f' }}>{g(h.amount)}</strong></td>
+                                        <td><span className="tx-status-chip" style={{ color: STATUS_STYLE.Pending.color, background: STATUS_STYLE.Pending.bg }}>{t.pending}</span></td>
+                                        <td>
+                                            <button 
+                                                className="tx-submit-btn" 
+                                                style={{ padding: '6px 12px', fontSize: '13px', width: 'auto' }}
+                                                onClick={() => {
+                                                    const newStatus = h.type === 'Buy' ? 'Paid' : 'Received';
+                                                    setHistory(prev => prev.map(tx => tx.id === h.id ? { ...tx, status: newStatus } : tx));
+                                                }}
+                                            >
+                                                {h.type === 'Buy' ? t.payNow : t.markReceived}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {history.filter(h => h.status === 'Pending').length === 0 && (
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>{t.noPendingPayments}</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
             {editModal && editForm && (
                 <div className="modal-overlay" onClick={() => setEditModal(false)}>
                     <div className="modal-box tx-edit-modal" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header"><span className="modal-title">Edit Record: {editForm.id}</span></div>
+                        <div className="modal-header"><span className="modal-title">{t.editRecord}: {editForm.id}</span></div>
                         <form className="modal-form" onSubmit={saveEdit}>
-                            <label>Party Name</label><input value={editForm.party} onChange={e => setEditForm(p => ({ ...p, party: e.target.value }))} required />
-                            <label>Product ID</label><input value={editForm.productId || ''} onChange={e => setEditForm(p => ({ ...p, productId: e.target.value }))} />
-                            <label>Product</label><input value={editForm.product} onChange={e => setEditForm(p => ({ ...p, product: e.target.value }))} required />
-                            <label>Quantity</label><input type="number" value={editForm.qty} onChange={e => setEditForm(p => ({ ...p, qty: e.target.value }))} required />
-                            <label>Total Amount (₹)</label><input type="number" value={editForm.amount} onChange={e => setEditForm(p => ({ ...p, amount: e.target.value }))} required />
-                            <label>Status</label>
+                            <label>{t.partyName}</label><input value={editForm.party} onChange={e => setEditForm(p => ({ ...p, party: e.target.value }))} required />
+                            <label>{t.productIdLabel}</label><input value={editForm.productId || ''} onChange={e => setEditForm(p => ({ ...p, productId: e.target.value }))} />
+                            <label>{t.product}</label><input value={editForm.product} onChange={e => setEditForm(p => ({ ...p, product: e.target.value }))} required />
+                            <label>{t.quantity}</label><input type="number" value={editForm.qty} onChange={e => setEditForm(p => ({ ...p, qty: e.target.value }))} required />
+                            <label>{t.totalAmountLabel}</label><input type="number" value={editForm.amount} onChange={e => setEditForm(p => ({ ...p, amount: e.target.value }))} required />
+                            <label>{t.status}</label>
                             <select value={editForm.status} onChange={e => setEditForm(p => ({ ...p, status: e.target.value }))}>
                                 {editForm.type === 'Buy' ? (
                                     <>
-                                        <option value="Paid">Paid</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Cancelled">Cancelled</option>
+                                        <option value="Paid">{t.paid}</option>
+                                        <option value="Pending">{t.pending}</option>
+                                        <option value="Cancelled">{t.cancelled}</option>
                                     </>
                                 ) : (
                                     <>
-                                        <option value="Received">Received</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Cancelled">Cancelled</option>
+                                        <option value="Received">{t.received}</option>
+                                        <option value="Pending">{t.pending}</option>
+                                        <option value="Cancelled">{t.cancelled}</option>
                                     </>
                                 )}
                             </select>
                             <div className="modal-actions">
-                                <button type="button" className="modal-cancel" onClick={() => setEditModal(false)}>Cancel</button>
-                                <button type="submit" className="modal-submit">Update</button>
+                                <button type="button" className="modal-cancel" onClick={() => setEditModal(false)}>{t.cancel}</button>
+                                <button type="submit" className="modal-submit">{t.update}</button>
                             </div>
                         </form>
                     </div>

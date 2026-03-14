@@ -1,12 +1,7 @@
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import './Inventory.css';
-
-const STAGE_LABELS = {
-  C: 'Stage 1 – Casting',
-  F: 'Stage 2 – Finishing Touch',
-  G: 'Stage 3 – Gold Plating',
-  P: 'Stage 4 – Packaging',
-};
 
 function getNextProductId(products) {
   const nums = products.map(p => {
@@ -18,17 +13,27 @@ function getNextProductId(products) {
 
 function pct(prod) { return Object.values(prod).filter(Boolean).length * 25; }
 
-function CompleteBadge({ prod }) {
+function CompleteBadge({ prod, g }) {
   const p = pct(prod);
   const color = p === 100 ? '#2dab6f' : p >= 50 ? '#f4a12a' : '#e05c5c';
   return (
     <span className="inv-complete" style={{ color }}>
-      {p === 100 ? '100% Done' : p === 0 ? '0%' : `${p}%`}
+      {p === 100 ? `${g(100)}% Done` : p === 0 ? `${g(0)}%` : `${g(p)}%`}
     </span>
   );
 }
 
 export default function Inventory({ products, setProducts }) {
+  const { user } = useAuth();
+  const { t, g } = useLanguage();
+
+  const STAGE_LABELS = {
+    C: `${t.casting.split(' ')[0]} 1 – ${t.casting}`,
+    F: `${t.casting.split(' ')[0]} 2 – Finishing Touch`,
+    G: `${t.casting.split(' ')[0]} 3 – ${t.goldPlating}`,
+    P: `${t.casting.split(' ')[0]} 4 – ${t.packaging}`,
+  };
+
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
@@ -96,12 +101,12 @@ export default function Inventory({ products, setProducts }) {
   return (
     <div className="inv-page">
       <div className="inv-header">
-        <h2 className="inv-title">Inventory Management</h2>
-        <button className="btn-add-inv" onClick={openAdd}>+ Add New Product</button>
+        <h2 className="inv-title">{t.inventoryManagement}</h2>
+        <button className="btn-add-inv" onClick={openAdd}>{t.addNewProduct}</button>
       </div>
 
       <div className="inv-search-wrap">
-        <input className="inv-search" placeholder="Search by name or RI ID..."
+        <input className="inv-search" placeholder={t.searchInventory}
           value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
@@ -109,22 +114,22 @@ export default function Inventory({ products, setProducts }) {
         <table className="inv-tbl">
           <thead>
             <tr>
-              <th>Product ID</th>
-              <th>Product Name</th>
-              <th>Current Stock</th>
-              <th>Production Stages</th>
-              <th>Overall Progress</th>
-              <th>Actions</th>
+              <th>{t.productId}</th>
+              <th>{t.productName}</th>
+              <th>{t.currentStock}</th>
+              <th>{t.productionStages}</th>
+              <th>{t.overallProgress}</th>
+              <th>{t.actions}</th>
             </tr>
           </thead>
           <tbody>
             {visible.map(p => (
               <tr key={p.id}>
-                <td className="inv-id">{p.id}</td>
+                <td className="inv-id">{g(p.id)}</td>
                 <td className="inv-name">{p.name}</td>
                 <td>
                   <span className={`inv-stock ${p.lowStock ? 'low' : ''}`}>
-                    {p.stock} units{p.lowStock ? ' (Low)' : ''}
+                    {g(p.stock)} {t.units}{p.lowStock ? ` ${t.low}` : ''}
                   </span>
                 </td>
                 <td>
@@ -136,29 +141,31 @@ export default function Inventory({ products, setProducts }) {
                     ))}
                   </div>
                 </td>
-                <td><CompleteBadge prod={p.production} /></td>
+                <td><CompleteBadge prod={p.production} g={g} /></td>
                 <td>
                   <div className="inv-actions">
-                    <button className="act-view" onClick={() => setViewProduct(p)}>View</button>
-                    <button className="act-edit" onClick={() => openEdit(p)}>Edit</button>
-                    <button className="act-del" onClick={() => handleDelete(p.id)}>Del</button>
+                    <button className="act-view" onClick={() => setViewProduct(p)}>{t.view}</button>
+                    <button className="act-edit" onClick={() => openEdit(p)}>{t.edit}</button>
+                    {user?.role !== 'Employee' && (
+                      <button className="act-del" onClick={() => handleDelete(p.id)}>{t.del}</button>
+                    )}
                   </div>
                 </td>
               </tr>
             ))}
             {visible.length === 0 && (
-              <tr><td colSpan="6" className="inv-empty">No products available.</td></tr>
+              <tr><td colSpan="6" className="inv-empty">{t.noProducts}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
       <div className="inv-legend">
-        <span className="leg-done">Done</span> &nbsp;
-        <span className="leg-pending">Pending</span> &nbsp;|&nbsp;
-        <strong>C</strong>: Casting &nbsp;|&nbsp;
-        <strong>G</strong>: Gold Plating &nbsp;|&nbsp;
-        <strong>P</strong>: Packaging
+        <span className="leg-done">{t.done}</span> &nbsp;
+        <span className="leg-pending">{t.pendingLabel}</span> &nbsp;|&nbsp;
+        <strong>C</strong>: {t.casting} &nbsp;|&nbsp;
+        <strong>G</strong>: {t.goldPlating} &nbsp;|&nbsp;
+        <strong>P</strong>: {t.packaging}
       </div>
 
       <button className="fab-btn" onClick={openAdd}>+</button>
@@ -168,25 +175,30 @@ export default function Inventory({ products, setProducts }) {
         <div className="modal-overlay" onClick={() => setViewProduct(null)}>
           <div className="modal-box inv-modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">Product Info: {viewProduct.id}</span>
+              <span className="modal-title">{t.productInfo}: {g(viewProduct.id)}</span>
               <button className="modal-close" onClick={() => setViewProduct(null)}>X</button>
             </div>
             <div className="inv-view-details">
-              <div className="inv-view-row"><strong>Name:</strong> {viewProduct.name}</div>
-              <div className="inv-view-row"><strong>Stock Level:</strong> <span className={viewProduct.lowStock ? 'inv-stock low' : ''}>{viewProduct.stock} units</span></div>
-              <div className="inv-view-row"><strong>Status:</strong> <CompleteBadge prod={viewProduct.production} /> Complete</div>
-              <div className="inv-view-row" style={{ marginTop: 15 }}><strong>Production Tracking:</strong></div>
+              <div className="inv-view-row"><strong>{t.name}:</strong> {viewProduct.name}</div>
+              <div className="inv-view-row"><strong>{t.stockLevelLabel}:</strong> <span className={viewProduct.lowStock ? 'inv-stock low' : ''}>{g(viewProduct.stock)} {t.units}</span></div>
+              <div className="inv-view-row"><strong>{t.status}:</strong> <CompleteBadge prod={viewProduct.production} g={g} /> {t.done}</div>
+              <div className="inv-view-row" style={{ marginTop: 15 }}><strong>{t.productionTracking}:</strong></div>
               <div className="inv-view-stages">
-                {Object.entries(STAGE_LABELS).map(([k, lbl]) => (
+                {[
+                  { k: 'C', lbl: `${t.casting}` },
+                  { k: 'F', lbl: 'Finishing Touch' },
+                  { k: 'G', lbl: t.goldPlating },
+                  { k: 'P', lbl: t.packaging },
+                ].map(({ k, lbl }) => (
                   <div key={k} className={`inv-view-stage ${viewProduct.production[k] ? 'done' : 'pending'}`}>
-                    {viewProduct.production[k] ? '[DONE]' : '[PENDING]'} {lbl}
+                    {viewProduct.production[k] ? `[${t.done}]` : `[${t.pendingLabel}]`} {lbl}
                   </div>
                 ))}
               </div>
             </div>
             <div className="modal-actions">
-              <button className="modal-cancel" onClick={() => setViewProduct(null)}>Close</button>
-              <button className="modal-submit" onClick={() => { openEdit(viewProduct); setViewProduct(null); }}>Edit</button>
+              <button className="modal-cancel" onClick={() => setViewProduct(null)}>{t.close}</button>
+              <button className="modal-submit" onClick={() => { openEdit(viewProduct); setViewProduct(null); }}>{t.edit}</button>
             </div>
           </div>
         </div>
@@ -196,29 +208,34 @@ export default function Inventory({ products, setProducts }) {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-box inv-modal-box" onClick={e => e.stopPropagation()}>
-            <h3 className="inv-modal-title">{editTarget ? `Edit Product ${editTarget}` : 'Add New Product'}</h3>
+            <h3 className="inv-modal-title">{editTarget ? `${t.editProductLabel} ${g(editTarget)}` : t.addNewProductLabel}</h3>
             <form className="inv-modal-form" onSubmit={handleSave}>
               {!editTarget && (
                 <div className="inv-modal-row" style={{ marginBottom: 12 }}>
                   <div className="inv-modal-col">
-                    <label className="inv-mlabel">PRODUCT ID (Auto)</label>
-                    <input className="inv-minput read-only" value={getNextProductId(products)} readOnly style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
+                    <label className="inv-mlabel">{t.productIdAuto}</label>
+                    <input className="inv-minput read-only" value={g(getNextProductId(products))} readOnly style={{ background: '#f0f7fa', color: '#3e97b9', fontWeight: 700 }} />
                   </div>
                 </div>
               )}
               <div className="inv-modal-row">
                 <div className="inv-modal-col">
-                  <label className="inv-mlabel">PRODUCT NAME</label>
+                  <label className="inv-mlabel">{t.productName}</label>
                   <input className="inv-minput" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required />
                 </div>
                 <div className="inv-modal-col inv-modal-col-sm">
-                  <label className="inv-mlabel">STOCK</label>
+                  <label className="inv-mlabel">{t.stock}</label>
                   <input className="inv-minput" type="number" value={form.stock} onChange={e => setForm(p => ({ ...p, stock: e.target.value }))} required />
                 </div>
               </div>
-              <label className="inv-mlabel" style={{ marginTop: 18 }}>PRODUCTION STAGES</label>
+              <label className="inv-mlabel" style={{ marginTop: 18 }}>{t.productionStagesLabel}</label>
               <div className="inv-stages-grid">
-                {Object.entries(STAGE_LABELS).map(([k, lbl]) => (
+                {[
+                  { k: 'C', lbl: t.casting },
+                  { k: 'F', lbl: 'Finishing Touch' },
+                  { k: 'G', lbl: t.goldPlating },
+                  { k: 'P', lbl: t.packaging },
+                ].map(({ k, lbl }) => (
                   <label key={k} className="inv-stage-check">
                     <input type="checkbox" checked={form.production[k]} onChange={() => toggleFormStage(k)} />
                     <span className="inv-stage-text">{lbl}</span>
@@ -226,8 +243,8 @@ export default function Inventory({ products, setProducts }) {
                 ))}
               </div>
               <div className="inv-modal-actions">
-                <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="modal-submit">{editTarget ? 'Save Changes' : 'Create Product'}</button>
+                <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>{t.cancel}</button>
+                <button type="submit" className="modal-submit">{editTarget ? t.saveChanges : t.createProduct}</button>
               </div>
             </form>
           </div>
