@@ -13,6 +13,9 @@ export const translations = {
     salary: 'Salary',
     profile: 'Profile',
     logout: 'Logout',
+    welcome: 'Welcome',
+    admin: 'Admin',
+    employee: 'Employee',
 
     // Language toggle
     language: 'Language',
@@ -201,6 +204,9 @@ export const translations = {
     salary: 'પગાર',
     profile: 'પ્રોફાઇલ',
     logout: 'લૉગ આઉટ',
+    welcome: 'સ્વાગત',
+    admin: 'એડમિન',
+    employee: 'કર્મચારી',
 
     // Language toggle
     language: 'ભાષા',
