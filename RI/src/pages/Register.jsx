@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { apiRegister } from '../api';
 import './Register.css';
 
 export default function Register() {
@@ -14,6 +15,7 @@ export default function Register() {
     employeeType: 'Casting'
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const EMPLOYEE_TYPES = ['Casting', 'Finishing Touch', 'Gold Plating', 'Packaging'];
@@ -23,8 +25,10 @@ export default function Register() {
     setForm(f => ({ ...f, [name]: value }));
   }
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
+    setError('');
+
     if (!form.fullName || !form.email || !form.password) {
       return alert('Please fill all required fields');
     }
@@ -34,26 +38,26 @@ export default function Register() {
 
     setLoading(true);
 
-    setTimeout(() => {
+    try {
       const userData = {
         fullName: form.fullName,
-        email: form.email.toLowerCase(),
+        email: form.email.toLowerCase().trim(),
         password: form.password,
         mobile: form.mobile,
         address: form.address,
         role: form.role,
         employeeType: form.role === 'Employee' ? form.employeeType : 'N/A',
-        createdAt: new Date().toISOString(),
       };
 
-      const existing = JSON.parse(localStorage.getItem('ri_users') || '[]');
-      existing.push(userData);
-      localStorage.setItem('ri_users', JSON.stringify(existing));
-
+      await apiRegister(userData);
+      
       setLoading(false);
       alert('Registration successful — you may now sign in');
       navigate('/login', { replace: true });
-    }, 800);
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+      setLoading(false);
+    }
   }
 
   return (
@@ -72,6 +76,12 @@ export default function Register() {
         <div className="reg-card">
           <h2 className="reg-title">Create New Account</h2>
           <hr className="reg-divider" />
+
+          {error && (
+            <div className="login-error" style={{ marginBottom: '15px' }}>
+              <span className="login-error-icon">⚠</span>{error}
+            </div>
+          )}
 
           <form className="reg-form" onSubmit={submit}>
             <div className="reg-section-label">Account Information</div>

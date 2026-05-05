@@ -23,7 +23,7 @@ function CompleteBadge({ prod, g }) {
   );
 }
 
-export default function Inventory({ products, setProducts }) {
+export default function Inventory({ products, setProducts, onAddProduct, onUpdateProduct, onDeleteProduct }) {
   const { user } = useAuth();
   const { t, g } = useLanguage();
 
@@ -39,6 +39,7 @@ export default function Inventory({ products, setProducts }) {
   const [editTarget, setEditTarget] = useState(null);
   const [viewProduct, setViewProduct] = useState(null);
   const [form, setForm] = useState({ name: '', stock: '', production: { C: false, F: false, G: false, P: false } });
+  const [saving, setSaving] = useState(false);
 
   const visible = products.filter(p =>
     !search ||
@@ -47,11 +48,26 @@ export default function Inventory({ products, setProducts }) {
   );
 
   function toggleProductStage(productId, stageKey) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const updatedProduction = { ...product.production, [stageKey]: !product.production[stageKey] };
+    
+    // Update locally first
     setProducts(prev => prev.map(p =>
       p.id === productId
-        ? { ...p, production: { ...p.production, [stageKey]: !p.production[stageKey] } }
+        ? { ...p, production: updatedProduction }
         : p
     ));
+    
+    // Also update the viewProduct if viewing
+    if (viewProduct && viewProduct.id === productId) {
+      setViewProduct(prev => ({ ...prev, production: updatedProduction }));
+    }
+
+    // Sync to MongoDB
+    if (onUpdateProduct) {
+      onUpdateProduct(productId, { ...product, production: updatedProduction });
+    }
   }
 
   function openAdd() {
@@ -73,28 +89,61 @@ export default function Inventory({ products, setProducts }) {
     }));
   }
 
-  function handleSave(e) {
+  async function handleSave(e) {
     e.preventDefault();
-    if (editTarget) {
-      setProducts(prev => prev.map(p =>
-        p.id === editTarget
-          ? { ...p, name: form.name, stock: Number(form.stock), lowStock: Number(form.stock) < 15, production: { ...form.production } }
-          : p
-      ));
-    } else {
-      const newProdId = getNextProductId(products);
-      setProducts(prev => [...prev, {
-        id: newProdId, name: form.name,
-        stock: Number(form.stock), lowStock: Number(form.stock) < 15,
-        production: { ...form.production },
-      }]);
+    setSaving(true);
+
+    try {
+      if (editTarget) {
+        const updatedData = {
+          name: form.name,
+          stock: Number(form.stock),
+          lowStock: Number(form.stock) < 15,
+          production: { ...form.production }
+        };
+
+        if (onUpdateProduct) {
+          await onUpdateProduct(editTarget, updatedData);
+        } else {
+          setProducts(prev => prev.map(p =>
+            p.id === editTarget ? { ...p, ...updatedData } : p
+          ));
+        }
+      } else {
+        const newProdId = getNextProductId(products);
+        const newProduct = {
+          id: newProdId,
+          name: form.name,
+          stock: Number(form.stock),
+          lowStock: Number(form.stock) < 15,
+          production: { ...form.production },
+        };
+
+        if (onAddProduct) {
+          await onAddProduct(newProduct);
+        } else {
+          setProducts(prev => [...prev, newProduct]);
+        }
+      }
+    } catch (err) {
+      // Error toast is already shown by the API layer
+    } finally {
+      setSaving(false);
+      setShowModal(false);
     }
-    setShowModal(false);
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (window.confirm('Delete this product?')) {
-      setProducts(prev => prev.filter(p => p.id !== id));
+      try {
+        if (onDeleteProduct) {
+          await onDeleteProduct(id);
+        } else {
+          setProducts(prev => prev.filter(p => p.id !== id));
+        }
+      } catch (err) {
+        // Error toast is already shown by the API layer
+      }
     }
   }
 
@@ -245,7 +294,9 @@ export default function Inventory({ products, setProducts }) {
               </div>
               <div className="inv-modal-actions">
                 <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>{t.cancel}</button>
-                <button type="submit" className="modal-submit">{editTarget ? t.saveChanges : t.createProduct}</button>
+                <button type="submit" className="modal-submit" disabled={saving}>
+                  {saving ? 'Saving...' : (editTarget ? t.saveChanges : t.createProduct)}
+                </button>
               </div>
             </form>
           </div>

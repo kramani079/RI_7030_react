@@ -28,7 +28,7 @@ function getNextTxId(history) {
   return `RI_${Math.max(3000, ...nums) + 1}`;
 }
 
-export default function Orders({ orders, setOrders, onTransaction, products, history }) {
+export default function Orders({ orders, setOrders, products, history, onTransaction, onAddOrder, onUpdateOrder, onDeleteOrder }) {
   const { user } = useAuth();
   const { t, g } = useLanguage();
   const [filter, setFilter] = useState('All');
@@ -36,6 +36,7 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
   const [showModal, setShowModal] = useState(false);
   const [editOrder, setEditOrder] = useState(null);
   const [viewOrder, setViewOrder] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     customer: '',
     email: '',
@@ -64,7 +65,7 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
     return matchFilter && matchSearch;
   });
 
-  function handleDispatch(o) {
+  async function handleDispatch(o) {
     if (o.status === 'Delivered') {
       alert('Order already dispatched and delivered!');
       return;
@@ -86,47 +87,53 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
     }
 
     if (window.confirm(`Dispatch order ${o.id} for ${o.customer}?\nThis will mark it as Delivered and record the payment in Transactions.`)) {
-      setOrders(prev =>
-        prev.map(order =>
-          order.id === o.id ? { ...order, status: 'Delivered' } : order
-        )
-      );
+      
+      const success = await onUpdateOrder(o.id, { ...o, status: 'Delivered' });
 
-      const tx = {
-        id: getNextTxId(history),
-        type: 'Sell',
-        party: o.customer,
-        productId: o.productId || targetProduct.id,
-        product: o.product,
-        qty: o.qty,
-        amount: o.amount,
-        status: 'Received',
-        date: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' }),
-      };
+      if (success) {
+        const tx = {
+          id: getNextTxId(history),
+          type: 'Sell',
+          party: o.customer,
+          productId: o.productId || targetProduct.id,
+          product: o.product,
+          qty: o.qty,
+          amount: o.amount,
+          status: 'Received',
+          date: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' }),
+        };
 
-      onTransaction(tx);
-
-      alert(`✅ Order ${o.id} marked as Delivered!\nTransaction recorded in Transactions → History.`);
+        await onTransaction(tx);
+        alert(`✅ Order ${o.id} marked as Delivered!\nTransaction recorded in Transactions → History.`);
+      }
     }
   }
 
-  function handleSave(e) {
+  async function handleSave(e) {
     e.preventDefault();
+    setSaving(true);
     const formattedAmount = form.amount.startsWith('₹') ? form.amount : `₹${Number(form.amount).toLocaleString('en-IN')}`;
 
-    if (editOrder) {
-      setOrders(prev => prev.map(o => o.id === editOrder.id ? { ...o, ...form, amount: formattedAmount } : o));
-    } else {
-      setOrders(prev => [{
-        id: getNextOrderId(prev),
-        ...form,
-        amount: formattedAmount,
-        production: { C: false, F: false, G: false, P: false },
-        status: 'Pending'
-      }, ...prev]);
+    try {
+      if (editOrder) {
+        await onUpdateOrder(editOrder.id, { ...editOrder, ...form, amount: formattedAmount });
+      } else {
+        const newOrder = {
+          id: getNextOrderId(orders),
+          ...form,
+          amount: formattedAmount,
+          production: { C: false, F: false, G: false, P: false },
+          status: 'Pending'
+        };
+        await onAddOrder(newOrder);
+      }
+      setShowModal(false);
+      setEditOrder(null);
+    } catch (err) {
+      // Error toast shown by API layer
+    } finally {
+      setSaving(false);
     }
-    setShowModal(false);
-    setEditOrder(null);
   }
 
   function openEdit(o) {
@@ -142,6 +149,12 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
       dueDate: o.dueDate || ''
     });
     setShowModal(true);
+  }
+
+  async function handleDelete(id) {
+    if (window.confirm('Delete this order?')) {
+      await onDeleteOrder(id);
+    }
   }
 
   const FILTER_LABELS = {
@@ -235,7 +248,7 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
                               background: 'transparent'
                             }} onClick={() => handleDispatch(o)}>{t.dispatch}</button>
                           )}
-                          <button className="act-del" onClick={() => setOrders(prev => prev.filter(x => x.id !== o.id))}>{t.del}</button>
+                          <button className="act-del" onClick={() => handleDelete(o.id)}>{t.del}</button>
                         </>
                       )}
                     </div>
@@ -332,7 +345,7 @@ export default function Orders({ orders, setOrders, onTransaction, products, his
               )}
               <div className="modal-actions">
                 <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>{t.cancel}</button>
-                <button type="submit" className="modal-submit">{t.saveOrder}</button>
+                <button type="submit" className="modal-submit" disabled={saving}>{saving ? 'Saving...' : t.saveOrder}</button>
               </div>
             </form>
           </div>

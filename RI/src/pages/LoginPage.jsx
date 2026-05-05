@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { apiLogin } from '../api';
 import {
   generateResetToken,
   saveResetToken,
@@ -14,6 +15,7 @@ export default function LoginPage({ onLogin }) {
   const [email, setEmail]         = useState('');
   const [password, setPassword]   = useState('');
   const [error, setError]         = useState('');
+  const [loading, setLoading]     = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -29,44 +31,34 @@ export default function LoginPage({ onLogin }) {
   const [fpCopied, setFpCopied]       = useState(false);
 
   // ── Login submit ────────────────────────────────────
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
     setError('');
 
     if (!email.trim()) { setError('Please enter your email'); return; }
     if (!password.trim()) { setError('Please enter your password'); return; }
 
-    const users = JSON.parse(localStorage.getItem('ri_users') || '[]');
-    const found = users.find(u => u.email === email.toLowerCase().trim());
+    setLoading(true);
+    try {
+      const user = await apiLogin(email, password);
+      
+      if (user.role !== loginType) {
+        setError(`This account is registered as "${user.role}". Please use the ${user.role} login tab.`);
+        setLoading(false);
+        return;
+      }
 
-    if (!found) {
-      setError('No account found with this email. Please register first.');
-      return;
-    }
-    if (found.password !== password) {
-      setError('Incorrect password. Please try again.');
-      return;
-    }
-    if (found.role !== loginType) {
-      setError(`This account is registered as "${found.role}". Please use the ${found.role} login tab.`);
-      return;
-    }
+      onLogin(user);
 
-    const user = {
-      name: found.fullName,
-      email: found.email,
-      mobile: found.mobile || '',
-      address: found.address || '',
-      role: found.role,
-      employeeType: found.employeeType || 'N/A',
-    };
-
-    onLogin(user);
-
-    if (user.role === 'Employee') {
-      navigate('/employee/dashboard', { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
+      if (user.role === 'Employee') {
+        navigate('/employee/dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (err) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -78,39 +70,29 @@ export default function LoginPage({ onLogin }) {
     const trimEmail = fpEmail.toLowerCase().trim();
     if (!trimEmail) { setFpError('Please enter your registered email.'); return; }
 
-    const users = JSON.parse(localStorage.getItem('ri_users') || '[]');
-    const found = users.find(u => u.email === trimEmail);
-    if (!found) {
-      setFpError('No account found with this email address.');
-      return;
-    }
-
     setFpLoading(true);
 
-    const token = generateResetToken();
-    saveResetToken(trimEmail, token);
-    const resetLink = buildResetLink(token);
+    try {
+      // We don't have a checkEmail endpoint, so we rely on the token logic for now
+      // but in a real app, we'd check the DB first.
+      const token = generateResetToken();
+      saveResetToken(trimEmail, token);
+      const resetLink = buildResetLink(token);
 
-    if (isEmailConfigured()) {
-      // ── Real email via EmailJS ──
-      try {
-        await sendResetEmail(trimEmail, found.fullName || found.name || '', token);
+      if (isEmailConfigured()) {
+        await sendResetEmail(trimEmail, 'User', token);
         setFpSentMode('email');
         setFpEmail('');
-      } catch (err) {
-        console.error('EmailJS error:', err);
-        setFpError('Failed to send email. Showing your reset link below instead.');
+      } else {
         setFpResetLink(resetLink);
         setFpSentMode('link');
+        setFpEmail('');
       }
-    } else {
-      // ── EmailJS not configured → show the link on screen ──
-      setFpResetLink(resetLink);
-      setFpSentMode('link');
-      setFpEmail('');
+    } catch (err) {
+      setFpError(err.message || 'Failed to process request.');
+    } finally {
+      setFpLoading(false);
     }
-
-    setFpLoading(false);
   }
 
   function handleCopyLink() {
@@ -245,8 +227,9 @@ export default function LoginPage({ onLogin }) {
                   <button
                     className={`btn-primary ${loginType === 'Employee' ? 'btn-employee' : ''}`}
                     type="submit"
+                    disabled={loading}
                   >
-                    Login as {loginType}
+                    {loading ? 'Logging in...' : `Login as ${loginType}`}
                   </button>
                 </form>
               </>

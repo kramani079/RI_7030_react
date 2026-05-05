@@ -153,6 +153,7 @@ export const translations = {
     bankTransfer: 'Bank Transfer',
     description: 'Description',
     action: 'Action',
+    bill: 'Bill',
 
     // Salary
     advanceSalaryRequests: 'Advance Salary Requests',
@@ -344,6 +345,7 @@ export const translations = {
     bankTransfer: 'બૅન્ક ટ્રાન્સફર',
     description: 'વર્ણન',
     action: 'ક્રિયા',
+    bill: 'બિલ',
 
     // Salary
     advanceSalaryRequests: 'છૂટ પગાર વિનંતી',

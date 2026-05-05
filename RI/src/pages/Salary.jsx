@@ -9,13 +9,15 @@ export default function Salary({ history, setHistory, onTransaction }) {
 
     const [advanceModal, setAdvanceModal] = useState(false);
     const [advanceForm, setAdvanceForm] = useState({ amount: '', reason: '' });
+    const [saving, setSaving] = useState(false);
 
     const salaryHistory = history.filter(h =>
         (h.productId === 'EMP_SALARY' || h.productId === 'EMP_ADVANCE') && h.party === user?.name
     );
 
-    function requestAdvance(e) {
+    async function requestAdvance(e) {
         e.preventDefault();
+        setSaving(true);
         const tx = {
             id: `RI_${Math.floor(8000 + Math.random() * 1000)}`,
             type: 'Buy',
@@ -27,10 +29,15 @@ export default function Salary({ history, setHistory, onTransaction }) {
             status: 'Pending',
             date: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' }),
         };
-        onTransaction(tx);
-        setAdvanceModal(false);
-        setAdvanceForm({ amount: '', reason: '' });
-        alert(t.advanceRequested);
+        try {
+            await onTransaction(tx);
+            setAdvanceModal(false);
+            setAdvanceForm({ amount: '', reason: '' });
+        } catch (err) {
+            // Error handled by API layer
+        } finally {
+            setSaving(false);
+        }
     }
 
     if (user?.role === 'Admin') {
@@ -72,13 +79,21 @@ export default function Salary({ history, setHistory, onTransaction }) {
                                         <button
                                             className="btn-add-salary"
                                             style={{ padding: '6px 12px', fontSize: '13px' }}
-                                            onClick={() => {
+                                            disabled={saving}
+                                            onClick={async () => {
                                                 if (window.confirm(`${t.approveAdvance} ${g(tx.amount)} ${t.for} ${tx.party}?`)) {
-                                                    setHistory(prev => prev.map(h => h.id === tx.id ? { ...h, status: 'Paid' } : h));
+                                                    setSaving(true);
+                                                    try {
+                                                        await onUpdateTransaction(tx.id, { ...tx, status: 'Paid' });
+                                                    } catch (err) {
+                                                        // Error handled by API layer
+                                                    } finally {
+                                                        setSaving(false);
+                                                    }
                                                 }
                                             }}
                                         >
-                                            {t.payNow}
+                                            {saving ? '...' : t.payNow}
                                         </button>
                                     </td>
                                 </tr>

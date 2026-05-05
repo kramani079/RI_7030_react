@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -19,7 +20,7 @@ const STATUS_STYLE = {
     Cancelled: { color: '#e05c5c', bg: '#fff0f0' },
 };
 
-export default function Transactions({ history, setHistory, onTransaction, products }) {
+export default function Transactions({ history, setHistory, products, onTransaction, onUpdateTransaction, onDeleteTransaction }) {
     const { user } = useAuth();
     const { t, g } = useLanguage();
     const [searchParams] = useSearchParams();
@@ -27,9 +28,12 @@ export default function Transactions({ history, setHistory, onTransaction, produ
     const [search, setSearch] = useState('');
     const [editModal, setEditModal] = useState(false);
     const [editForm, setEditForm] = useState(null);
+    const [billModal, setBillModal] = useState(false);
+    const [selectedBill, setSelectedBill] = useState(null);
+    const [saving, setSaving] = useState(false);
 
-    const [buyForm, setBuyForm] = useState({ supplierName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', unitPrice: '', amount: '', date: '2026-02-26' });
-    const [sellForm, setSellForm] = useState({ customerName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', sellingPrice: '', amount: '', date: '2026-02-26' });
+    const [buyForm, setBuyForm] = useState({ supplierName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', unitPrice: '', amount: '', date: new Date().toISOString().slice(0,10) });
+    const [sellForm, setSellForm] = useState({ customerName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', sellingPrice: '', amount: '', date: new Date().toISOString().slice(0,10) });
 
     // Auto-calculate Buy Total
     useEffect(() => {
@@ -45,8 +49,9 @@ export default function Transactions({ history, setHistory, onTransaction, produ
         setSellForm(prev => ({ ...prev, amount: (q * p).toString() }));
     }, [sellForm.quantity, sellForm.sellingPrice]);
 
-    function submitBuy(e) {
+    async function submitBuy(e) {
         e.preventDefault();
+        setSaving(true);
         const tx = {
             id: getNextTxId(history),
             type: 'Buy',
@@ -55,15 +60,26 @@ export default function Transactions({ history, setHistory, onTransaction, produ
             product: buyForm.product,
             qty: buyForm.quantity,
             amount: `₹${Number(buyForm.amount).toLocaleString('en-IN')}`,
+            rate: buyForm.unitPrice,
+            paymentMethod: buyForm.paymentMethod,
             status: 'Pending',
             date: new Date(buyForm.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' }),
         };
-        onTransaction(tx);
-        setTab('history');
-        setBuyForm({ supplierName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', unitPrice: '', amount: '', date: '2026-02-26' });
+        
+        try {
+            await onTransaction(tx);
+            setTab('history');
+            setBuyForm({ supplierName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', unitPrice: '', amount: '', date: new Date().toISOString().slice(0,10) });
+            setSelectedBill(tx);
+            setBillModal(true);
+        } catch (err) {
+            // Error handled by API layer
+        } finally {
+            setSaving(false);
+        }
     }
 
-    function submitSell(e) {
+    async function submitSell(e) {
         e.preventDefault();
 
         // Stock Validation
@@ -83,6 +99,7 @@ export default function Transactions({ history, setHistory, onTransaction, produ
             return;
         }
 
+        setSaving(true);
         const tx = {
             id: getNextTxId(history),
             type: 'Sell',
@@ -91,12 +108,23 @@ export default function Transactions({ history, setHistory, onTransaction, produ
             product: sellForm.product,
             qty: sellForm.quantity,
             amount: `₹${Number(sellForm.amount).toLocaleString('en-IN')}`,
+            rate: sellForm.sellingPrice,
+            paymentMethod: sellForm.paymentMethod,
             status: 'Received',
             date: new Date(sellForm.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' }),
         };
-        onTransaction(tx);
-        setTab('history');
-        setSellForm({ customerName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', sellingPrice: '', amount: '', date: '2026-02-26' });
+
+        try {
+            await onTransaction(tx);
+            setTab('history');
+            setSellForm({ customerName: '', paymentMethod: 'Cash', productId: '', product: '', quantity: '', sellingPrice: '', amount: '', date: new Date().toISOString().slice(0,10) });
+            setSelectedBill(tx);
+            setBillModal(true);
+        } catch (err) {
+            // Error handled by API layer
+        } finally {
+            setSaving(false);
+        }
     }
 
     const filteredHistory = history.filter(h =>
@@ -108,10 +136,28 @@ export default function Transactions({ history, setHistory, onTransaction, produ
         setEditModal(true);
     }
 
-    function saveEdit(e) {
+    async function saveEdit(e) {
         e.preventDefault();
-        setHistory(prev => prev.map(h => h.id === editForm.id ? { ...editForm, amount: `₹${Number(editForm.amount).toLocaleString('en-IN')}` } : h));
-        setEditModal(false);
+        setSaving(true);
+        try {
+            await onUpdateTransaction(editForm.id, { ...editForm, amount: `₹${Number(editForm.amount).toLocaleString('en-IN')}` });
+            setEditModal(false);
+        } catch (err) {
+            // Error handled by API layer
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    async function handleDelete(id) {
+        if (window.confirm('Delete this transaction?')) {
+            await onDeleteTransaction(id);
+        }
+    }
+
+    function openBill(h) {
+        setSelectedBill(h);
+        setBillModal(true);
     }
 
     const TAB_LABELS = { buy: t.buy, sell: t.sell.replace(' →',''), history: t.history, due: t.duePayments };
@@ -156,7 +202,7 @@ export default function Transactions({ history, setHistory, onTransaction, produ
                             <label className="tx-label">{t.totalAmountLabel}</label>
                             <input className="tx-input read-only" value={g(buyForm.amount)} readOnly />
                         </div>
-                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit">{t.completePurchase}</button></div>
+                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit" disabled={saving}>{saving ? 'Processing...' : t.completePurchase}</button></div>
                     </form>
                 </div>
             )}
@@ -191,7 +237,7 @@ export default function Transactions({ history, setHistory, onTransaction, produ
                             <label className="tx-label">{t.totalAmountLabel}</label>
                             <input className="tx-input read-only" value={g(sellForm.amount)} readOnly />
                         </div>
-                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit">{t.completeSale}</button></div>
+                        <div className="tx-submit-row"><button className="tx-submit-btn" type="submit" disabled={saving}>{saving ? 'Processing...' : t.completeSale}</button></div>
                     </form>
                 </div>
             )}
@@ -205,7 +251,7 @@ export default function Transactions({ history, setHistory, onTransaction, produ
                     <div className="tx-table-wrap">
                         <table className="tx-tbl">
                             <thead>
-                                <tr><th>{t.txId}</th><th>{t.type}</th><th>{t.party}</th><th>{t.productIdCol}</th><th>{t.qty}</th><th>{t.totalAmountCol}</th><th>{t.status}</th>{user?.role !== 'Employee' && <th>{t.actions}</th>}</tr>
+                                <tr><th>{t.txId}</th><th>{t.type}</th><th>{t.party}</th><th>{t.productIdCol}</th><th>{t.qty}</th><th>{t.totalAmountCol}</th><th>{t.status}</th><th>{t.actions}</th></tr>
                             </thead>
                             <tbody>
                                 {filteredHistory.map(h => {
@@ -219,7 +265,13 @@ export default function Transactions({ history, setHistory, onTransaction, produ
                                             <td>{g(h.qty)}</td>
                                             <td>{g(h.amount)}</td>
                                             <td><span className="tx-status-chip" style={{ color: s.color, background: s.bg }}>{h.status}</span></td>
-                                            {user?.role !== 'Employee' && <td><button className="tx-edit-btn" onClick={() => openEdit(h)}>{t.edit}</button></td>}
+                                            <td>
+                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                    {user?.role !== 'Employee' && <button className="tx-edit-btn" onClick={() => openEdit(h)}>{t.edit}</button>}
+                                                    <button className="tx-bill-btn" onClick={() => openBill(h)}>📄 {t.bill || 'Bill'}</button>
+                                                    {user?.role !== 'Employee' && <button className="tx-del-btn" style={{background:'none', border:'none', color:'#e05c5c', cursor:'pointer'}} onClick={() => handleDelete(h.id)}>🗑️</button>}
+                                                </div>
+                                            </td>
                                         </tr>
                                     );
                                 })}
@@ -252,8 +304,9 @@ export default function Transactions({ history, setHistory, onTransaction, produ
                                                 style={{ padding: '6px 12px', fontSize: '13px', width: 'auto' }}
                                                 onClick={() => {
                                                     const newStatus = h.type === 'Buy' ? 'Paid' : 'Received';
-                                                    setHistory(prev => prev.map(tx => tx.id === h.id ? { ...tx, status: newStatus } : tx));
+                                                    onUpdateTransaction(h.id, { ...h, status: newStatus });
                                                 }}
+                                                disabled={saving}
                                             >
                                                 {h.type === 'Buy' ? t.payNow : t.markReceived}
                                             </button>
@@ -297,12 +350,109 @@ export default function Transactions({ history, setHistory, onTransaction, produ
                             </select>
                             <div className="modal-actions">
                                 <button type="button" className="modal-cancel" onClick={() => setEditModal(false)}>{t.cancel}</button>
-                                <button type="submit" className="modal-submit">{t.update}</button>
+                                <button type="submit" className="modal-submit" disabled={saving}>{saving ? 'Saving...' : t.update}</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+            {billModal && selectedBill && (
+                <BillModal 
+                    bill={selectedBill} 
+                    onClose={() => setBillModal(false)} 
+                />
+            )}
         </div>
+    );
+}
+
+function BillModal({ bill, onClose }) {
+    const { g } = useLanguage();
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    return createPortal(
+        <div className="bill-modal-overlay" onClick={onClose}>
+            <div className="bill-modal-box" onClick={e => e.stopPropagation()}>
+                <div className="bill-modal-header">
+                    <button className="bill-close-btn" onClick={onClose}>×</button>
+                </div>
+                
+                <div id="printable-bill" className="bill-container">
+                    <div className="bill-header">
+                        <div className="bill-logo-section">
+                            <span className="bill-logo-ri">RI</span>
+                            <span className="bill-company-name">Rameshwar Imitation</span>
+                        </div>
+                        <div className="bill-type-section">
+                            <h2 className="bill-type-title">{bill.type === 'Buy' ? 'Purchase Bill' : 'Sale Bill'}</h2>
+                            <p className="bill-id-date">#{g(bill.id)}</p>
+                            <p className="bill-id-date">Date: {g(bill.date)}</p>
+                        </div>
+                    </div>
+
+                    <div className="bill-details-grid">
+                        <div className="bill-details-col">
+                            <p className="bill-details-label">FROM</p>
+                            <p className="bill-details-value"><strong>Rameshwar Imitation</strong></p>
+                            <p className="bill-details-subtext">Rajkot, Gujarat</p>
+                        </div>
+                        <div className="bill-details-col">
+                            <p className="bill-details-label">{bill.type === 'Buy' ? 'SUPPLIER DETAILS' : 'CUSTOMER DETAILS'}</p>
+                            <p className="bill-details-value"><strong>{bill.party}</strong></p>
+                            <p className="bill-details-subtext">Status: {bill.status}</p>
+                        </div>
+                    </div>
+
+                    <table className="bill-table">
+                        <thead>
+                            <tr>
+                                <th>DESCRIPTION</th>
+                                <th>QTY</th>
+                                <th style={{ textAlign: 'right' }}>RATE</th>
+                                <th style={{ textAlign: 'right' }}>TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{bill.product}</td>
+                                <td>{g(bill.qty)}</td>
+                                <td style={{ textAlign: 'right' }}>₹{Number(bill.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                <td style={{ textAlign: 'right' }}>{g(bill.amount)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div className="bill-summary">
+                        <div className="bill-summary-row">
+                            <span>Subtotal</span>
+                            <span>{g(bill.amount)}</span>
+                        </div>
+                        <div className="bill-summary-row">
+                            <span>Payment Method</span>
+                            <span>{bill.paymentMethod || 'Pending'}</span>
+                        </div>
+                        <div className="bill-summary-total">
+                            <span>Grand Total</span>
+                            <span>{g(bill.amount)}</span>
+                        </div>
+                    </div>
+
+                    <div className="bill-footer">
+                        <p>Thank you for doing business with Rameshwar Imitation.</p>
+                        <p className="bill-footer-small">This is a computer-generated bill.</p>
+                    </div>
+                </div>
+
+                <div className="bill-modal-actions">
+                    <button className="bill-print-btn" onClick={handlePrint}>
+                        🖨️ Print / Download Bill
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
     );
 }

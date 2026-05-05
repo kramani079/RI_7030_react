@@ -207,3 +207,26 @@
     padding: 16px;
   }
 }
+
+/* ── Print: hide layout shell ────────────────────── */
+@media print {
+  .sidebar,
+  .topbar {
+    display: none !important;
+  }
+
+  .app-shell {
+    display: block !important;
+    min-height: auto !important;
+  }
+
+  .app-main {
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app-content {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}
