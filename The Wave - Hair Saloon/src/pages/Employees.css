@@ -1,0 +1,375 @@
+/* =====================================================
+   Employees Page — Rameshwar Imitation Factory Mgmt
+   ===================================================== */
+
+.emp-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    padding-bottom: 40px;
+}
+
+/* Header */
+.emp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.emp-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a2f3e;
+}
+
+.btn-add-emp {
+    background: #3e97b9;
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(62, 151, 185, 0.25);
+    transition: background 0.15s;
+}
+
+.btn-add-emp:hover {
+    background: #2d85a5;
+}
+
+/* Search */
+.emp-search-wrap {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #dde4ea;
+    border-radius: 8px;
+    padding: 0 14px;
+    box-shadow: 0 1px 4px rgba(30, 74, 98, 0.06);
+}
+
+.emp-search-icon {
+    font-size: 15px;
+    margin-right: 8px;
+    color: #7a919e;
+}
+
+.emp-search {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 0;
+    font-size: 13.5px;
+    color: #1a2f3e;
+    background: transparent;
+}
+
+.emp-search::placeholder {
+    color: #a0b0ba;
+}
+
+/* Table */
+.emp-table-wrap {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(30, 74, 98, 0.07);
+    overflow: hidden;
+}
+
+.emp-tbl {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.emp-tbl th {
+    padding: 11px 14px;
+    background: #f6f9fb;
+    border-bottom: 1.5px solid #e8eef2;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a7080;
+    text-align: left;
+}
+
+.emp-tbl td {
+    padding: 13px 14px;
+    font-size: 13.5px;
+    color: #1a2f3e;
+    border-bottom: 1px solid #f0f4f7;
+    vertical-align: middle;
+}
+
+.emp-tbl tr:last-child td {
+    border-bottom: none;
+}
+
+.emp-tbl tr:hover td {
+    background: #fafcfe;
+}
+
+/* Cells */
+.emp-num {
+    color: #7a919e;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* "NEW" badge for freshly registered employees */
+.emp-new-badge {
+    display: inline-block;
+    margin-left: 7px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #2dab6f;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    animation: badgePulse 1.6s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.75; transform: scale(1.08); }
+}
+
+
+/* Avatar + name */
+.emp-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.emp-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+
+.emp-name {
+    font-weight: 600;
+    color: #3e97b9;
+    font-size: 14px;
+}
+
+.emp-email {
+    color: #8a9daa;
+    font-size: 13px;
+}
+
+.emp-salary {
+    font-weight: 600;
+    color: #1a2f3e;
+}
+
+/* Type chip */
+.emp-type-chip {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Action buttons */
+.emp-action-btns {
+    display: flex;
+    gap: 6px;
+}
+
+.act-view,
+.act-edit,
+.act-del,
+.act-pay {
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: all 0.13s;
+    background: transparent;
+}
+
+.act-view {
+    color: #3e97b9;
+    border-color: #3e97b9;
+}
+
+.act-edit {
+    color: #5a7080;
+    border-color: #c5d0d8;
+}
+
+.act-del {
+    color: #e05c5c;
+    border-color: #e05c5c;
+}
+
+.act-pay {
+    color: #2dab6f;
+    border-color: #2dab6f;
+}
+
+.act-view:hover {
+    background: #e8f4fa;
+}
+
+.act-edit:hover {
+    background: #f3f6f8;
+}
+
+.act-del:hover {
+    background: #fff0f0;
+}
+
+.act-pay:hover {
+    background: #e6f8f0;
+}
+
+/* FAB — reused from Orders/Inventory */
+.fab-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #3e97b9;
+    color: #fff;
+    font-size: 26px;
+    border: none;
+    box-shadow: 0 6px 20px rgba(62, 151, 185, 0.35);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+    z-index: 200;
+}
+
+.fab-btn:hover {
+    background: #2d85a5;
+    transform: scale(1.08);
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 25, 35, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    backdrop-filter: blur(2px);
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 30px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a2f3e;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #7a919e;
+    cursor: pointer;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modal-form label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #5a7080;
+    margin-top: 10px;
+}
+
+.modal-form input,
+.modal-select {
+    padding: 9px 12px;
+    border: 1.5px solid #dde4ea;
+    border-radius: 7px;
+    font-size: 13.5px;
+    outline: none;
+    color: #1a2f3e;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+.modal-form input:focus,
+.modal-select:focus {
+    border-color: #3e97b9;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+.modal-cancel {
+    padding: 9px 20px;
+    border-radius: 7px;
+    border: 1.5px solid #dde4ea;
+    background: #fff;
+    color: #5a7080;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-submit {
+    padding: 9px 22px;
+    border-radius: 7px;
+    border: none;
+    background: #3e97b9;
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-submit:hover {
+    background: #2d85a5;
+}

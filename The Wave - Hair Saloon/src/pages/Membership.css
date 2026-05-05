@@ -1,0 +1,349 @@
+/* =========================================================
+   Membership Page — The Wave Men's Saloon
+   ========================================================= */
+
+.membership-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 1200px;
+}
+
+/* ── Summary ────────────────────────────────────────── */
+.mem-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.mem-sum-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mem-sum-card:hover,
+.mem-sum-card.active {
+  border-color: var(--accent-gold);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.mem-sum-card--gold.active   { border-color: var(--accent-gold);   }
+.mem-sum-card--green.active  { border-color: var(--accent-green);  }
+.mem-sum-card--orange.active { border-color: var(--accent-orange); }
+.mem-sum-card--red.active    { border-color: var(--accent-red);    }
+
+.mem-sum-icon  { font-size: 26px; }
+.mem-sum-value { font-size: 24px; font-weight: 800; }
+.mem-sum-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.mem-sum-card--gold   .mem-sum-value { color: var(--accent-gold);   }
+.mem-sum-card--green  .mem-sum-value { color: var(--accent-green);  }
+.mem-sum-card--orange .mem-sum-value { color: var(--accent-orange); }
+.mem-sum-card--red    .mem-sum-value { color: var(--accent-red);    }
+
+/* ── Search ─────────────────────────────────────────── */
+.mem-search {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  max-width: 420px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.mem-search:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(212,168,67,0.12);
+}
+
+/* ── Members Grid ───────────────────────────────────── */
+.mem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+}
+
+.mem-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.2s;
+}
+
+.mem-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.mem-card--green  { border-left: 3px solid var(--accent-green);  }
+.mem-card--orange { border-left: 3px solid var(--accent-orange); }
+.mem-card--red    { border-left: 3px solid var(--accent-red);    }
+
+/* ── Card Top ───────────────────────────────────────── */
+.mem-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mem-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gradient-gold);
+  color: var(--text-on-accent);
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mem-name  { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.mem-phone { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Card Details ───────────────────────────────────── */
+.mem-details {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+}
+
+.mem-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.mem-detail-row span { color: var(--text-muted); }
+.mem-detail-row strong { color: var(--text-primary); font-weight: 600; }
+
+/* ── Service Tags Preview ───────────────────────────── */
+.mem-services-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mem-service-tag {
+  background: rgba(212,168,67,0.08);
+  border: 1px solid rgba(212,168,67,0.2);
+  color: var(--accent-gold);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 12px;
+}
+
+/* ── Card Actions ───────────────────────────────────── */
+.mem-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mem-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 20px;
+  font-size: 15px;
+}
+
+/* ── Modal: service count grid ──────────────────────── */
+.form-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  padding-top: 14px;
+}
+
+.service-count-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.svc-count-item {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.svc-count-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.svc-count-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Detail Modal: services grid ────────────────────── */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.detail-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.detail-badge strong { color: var(--text-primary); }
+
+.detail-services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.detail-svc-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.detail-svc-card--used {
+  border-color: rgba(212,168,67,0.35);
+  background: rgba(212,168,67,0.05);
+}
+
+.dsvc-icon  { font-size: 22px; }
+.dsvc-label { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-align: center; }
+
+.dsvc-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dsvc-count {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  min-width: 30px;
+  text-align: center;
+}
+
+.detail-svc-card--used .dsvc-count { color: var(--accent-gold); }
+
+.detail-total {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: right;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.detail-total strong { color: var(--accent-gold); font-size: 18px; }
+
+/* ── History List ───────────────────────────────────── */
+.detail-history {
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.history-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.history-svc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.history-icon { font-size: 16px; }
+
+.history-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  .mem-summary           { grid-template-columns: repeat(2, 1fr); }
+  .service-count-grid    { grid-template-columns: repeat(2, 1fr); }
+  .detail-services-grid  { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 580px) {
+  .mem-summary           { grid-template-columns: 1fr 1fr; }
+  .service-count-grid    { grid-template-columns: repeat(2, 1fr); }
+  .detail-services-grid  { grid-template-columns: repeat(2, 1fr); }
+  .mem-grid              { grid-template-columns: 1fr; }
+}

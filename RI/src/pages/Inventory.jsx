@@ -190,7 +190,8 @@ export default function Inventory({ products, setProducts }) {
                   { k: 'G', lbl: t.goldPlating },
                   { k: 'P', lbl: t.packaging },
                 ].map(({ k, lbl }) => (
-                  <div key={k} className={`inv-view-stage ${viewProduct.production[k] ? 'done' : 'pending'}`}>
+                  <div key={k} className={`inv-view-stage ${viewProduct.production[k] ? 'done' : 'pending'}`}
+                    onClick={() => toggleProductStage(viewProduct.id, k)} style={{ cursor: 'pointer' }}>
                     {viewProduct.production[k] ? `[${t.done}]` : `[${t.pendingLabel}]`} {lbl}
                   </div>
                 ))}

@@ -1,0 +1,117 @@
+/* ── USER DETAIL PAGE ───────────────────────────────── */
+.userdetail-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0f1923, #162538);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.userdetail-card {
+    background: rgba(22, 37, 56, 0.7);
+    border: 1px solid rgba(62, 151, 185, 0.12);
+    border-radius: 16px;
+    padding: 36px 40px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.userdetail-back {
+    color: #5cc4e8;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 20px;
+    transition: opacity 0.2s;
+}
+
+.userdetail-back:hover {
+    opacity: 0.7;
+}
+
+.userdetail-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #e8f4f8;
+    margin: 0 0 6px;
+}
+
+.userdetail-subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0 0 24px;
+}
+
+.userdetail-subtitle code {
+    background: rgba(62, 151, 185, 0.12);
+    color: #5cc4e8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.userdetail-info {
+    text-align: center;
+}
+
+.userdetail-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #3e97b9;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 4px 12px rgba(62, 151, 185, 0.3);
+}
+
+.userdetail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    text-align: left;
+}
+
+.userdetail-field label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.userdetail-field p {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 4px 0 0;
+    font-weight: 600;
+}
+
+.userdetail-not-found {
+    text-align: center;
+    padding: 32px 0;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.userdetail-not-found span {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 500px) {
+    .userdetail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .userdetail-card {
+        padding: 24px;
+    }
+}

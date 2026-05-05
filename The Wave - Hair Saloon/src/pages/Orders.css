@@ -1,0 +1,489 @@
+/* =====================================================
+   Orders Page — Rameshwar Imitation Factory Mgmt
+   Exact match to the .NET reference UI
+   ===================================================== */
+
+.orders-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    padding-bottom: 40px;
+}
+
+/* ── Header ──────────────────────────────────────── */
+.orders-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.orders-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a2f3e;
+}
+
+.btn-new-order {
+    background: #3e97b9;
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    box-shadow: 0 3px 10px rgba(62, 151, 185, 0.25);
+}
+
+.btn-new-order:hover {
+    background: #2d85a5;
+}
+
+/* ── Search ──────────────────────────────────────── */
+.orders-search-wrap {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #dde4ea;
+    border-radius: 8px;
+    padding: 0 14px;
+    box-shadow: 0 1px 4px rgba(30, 74, 98, 0.06);
+}
+
+.search-icon-o {
+    font-size: 15px;
+    margin-right: 8px;
+    color: #7a919e;
+}
+
+.orders-search {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 0;
+    font-size: 13.5px;
+    color: #1a2f3e;
+    background: transparent;
+}
+
+.orders-search::placeholder {
+    color: #a0b0ba;
+}
+
+/* ── Filter tabs ─────────────────────────────────── */
+.orders-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1.5px solid #dde4ea;
+    background: #fff;
+    color: #4a6070;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.14s;
+}
+
+.filter-btn:hover {
+    border-color: #3e97b9;
+    color: #3e97b9;
+}
+
+.filter-btn.active {
+    background: #3e97b9;
+    border-color: #3e97b9;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ── Table wrapper ───────────────────────────────── */
+.orders-table-wrap {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(30, 74, 98, 0.07);
+    overflow: hidden;
+}
+
+.orders-tbl {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-tbl th {
+    padding: 11px 14px;
+    background: #f6f9fb;
+    border-bottom: 1.5px solid #e8eef2;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a7080;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.orders-tbl td {
+    padding: 13px 14px;
+    font-size: 13.5px;
+    color: #1a2f3e;
+    border-bottom: 1px solid #f0f4f7;
+    vertical-align: middle;
+}
+
+.orders-tbl tr:last-child td {
+    border-bottom: none;
+}
+
+.orders-tbl tr:hover td {
+    background: #fafcfe;
+}
+
+/* ── Cells ───────────────────────────────────────── */
+.td-id {
+    font-weight: 700;
+    color: #1a2f3e;
+    white-space: nowrap;
+}
+
+.td-customer {
+    min-width: 150px;
+}
+
+.cust-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #3e97b9;
+}
+
+.cust-email {
+    font-size: 11.5px;
+    color: #8a9daa;
+    margin-top: 2px;
+}
+
+.td-amount {
+    font-weight: 600;
+    color: #1a2f3e;
+    white-space: nowrap;
+}
+
+/* ── Due date ────────────────────────────────────── */
+.due-date {
+    font-size: 13.5px;
+    white-space: nowrap;
+}
+
+.due-date.overdue {
+    color: #e05c5c;
+    font-weight: 600;
+}
+
+.due-date.due-soon {
+    color: #f4a12a;
+    font-weight: 600;
+}
+
+.overdue-warn {
+    font-size: 13px;
+}
+
+/* ── Production dots ─────────────────────────────── */
+.prod-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.prod-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.prod-dot.done {
+    background: #2dab6f;
+    color: #fff;
+}
+
+.prod-dot.pending {
+    background: #e0e8ed;
+    color: #7a919e;
+}
+
+.prod-pct {
+    font-size: 12px;
+    color: #7a919e;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+/* ── Status chip ─────────────────────────────────── */
+.status-chip {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: 1.5px solid;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Action buttons ──────────────────────────────── */
+.action-btns {
+    display: flex;
+    gap: 5px;
+}
+
+.act-view,
+.act-edit,
+.act-del {
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: opacity 0.13s;
+}
+
+.act-view {
+    color: #3e97b9;
+    border-color: #3e97b9;
+    background: transparent;
+}
+
+.act-edit {
+    color: #5a7080;
+    border-color: #c5d0d8;
+    background: transparent;
+}
+
+.act-del {
+    color: #e05c5c;
+    border-color: #e05c5c;
+    background: transparent;
+}
+
+.act-view:hover {
+    background: #e8f4fa;
+}
+
+.act-edit:hover {
+    background: #f3f6f8;
+}
+
+.act-del:hover {
+    background: #fff0f0;
+}
+
+/* ── Legend ──────────────────────────────────────── */
+.orders-legend {
+    font-size: 12.5px;
+    color: #7a919e;
+    padding: 10px 4px 0;
+}
+
+.legend-dot.done {
+    color: #2dab6f;
+    font-size: 16px;
+}
+
+.legend-dot.pending {
+    color: #c0cdd5;
+    font-size: 16px;
+}
+
+/* ── FAB ─────────────────────────────────────────── */
+.fab-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #3e97b9;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 300;
+    border: none;
+    box-shadow: 0 6px 20px rgba(62, 151, 185, 0.35);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+    z-index: 200;
+}
+
+.fab-btn:hover {
+    background: #2d85a5;
+    transform: scale(1.08);
+}
+
+/* ── Modal ───────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 25, 35, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    backdrop-filter: blur(2px);
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 30px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a2f3e;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #7a919e;
+    cursor: pointer;
+    padding: 2px 6px;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.modal-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-form label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    margin-top: 10px;
+}
+
+.modal-form input,
+.modal-form select {
+    padding: 0.875rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #1e293b;
+    outline: none;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.modal-form input:focus,
+.modal-form select:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.modal-form input.read-only {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+    border-style: dashed;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+.modal-cancel {
+    padding: 9px 20px;
+    border-radius: 7px;
+    border: 1.5px solid #dde4ea;
+    background: #fff;
+    color: #5a7080;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-submit {
+    padding: 9px 22px;
+    border-radius: 7px;
+    border: none;
+    background: #3e97b9;
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.modal-submit:hover {
+    background: #2d85a5;
+}
+
+/* ── Empty state ─────────────────────────────────── */
+.td-empty {
+    text-align: center;
+    color: #7a919e;
+    padding: 30px;
+    font-size: 14px;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 900px) {
+
+    .orders-tbl th,
+    .orders-tbl td {
+        padding: 9px 10px;
+        font-size: 12px;
+    }
+
+    .prod-dot {
+        width: 20px;
+        height: 20px;
+        font-size: 9px;
+    }
+}

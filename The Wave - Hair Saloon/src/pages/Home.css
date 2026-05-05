@@ -1,0 +1,207 @@
+/* ── HOME PAGE ──────────────────────────────────────── */
+.home-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0f1923 0%, #162538 60%, #101c28 100%);
+    color: #e8f4f8;
+    overflow-x: hidden;
+}
+
+/* Hero */
+.home-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 60px 32px 48px;
+    text-align: center;
+}
+
+.home-hero-content {
+    max-width: 680px;
+}
+
+.home-hero-badge {
+    display: inline-block;
+    background: rgba(62, 151, 185, 0.12);
+    color: #5cc4e8;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 16px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+.home-hero-title {
+    font-size: 46px;
+    font-weight: 900;
+    line-height: 1.15;
+    margin: 0 0 16px;
+    letter-spacing: -0.5px;
+}
+
+.home-highlight {
+    background: linear-gradient(135deg, #3e97b9, #6ee4a6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.home-hero-subtitle {
+    font-size: 17px;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.6;
+    margin: 0 0 32px;
+}
+
+.home-hero-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.home-btn {
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.home-btn-primary {
+    background: linear-gradient(135deg, #3e97b9, #2d7fa0);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(62, 151, 185, 0.3);
+}
+
+.home-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(62, 151, 185, 0.4);
+}
+
+.home-btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.home-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Features */
+.home-features {
+    padding: 48px 32px 56px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.home-features-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 32px;
+    color: #e8f4f8;
+}
+
+.home-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.home-feature-card {
+    background: linear-gradient(135deg, rgba(22, 37, 56, 0.7), rgba(13, 21, 32, 0.85));
+    border: 1px solid rgba(62, 151, 185, 0.1);
+    border-radius: 14px;
+    padding: 28px 24px;
+    transition: all 0.25s;
+}
+
+.home-feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(62, 151, 185, 0.25);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.home-feature-icon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.home-feature-card h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #c8e6f0;
+    margin: 0 0 8px;
+}
+
+.home-feature-card p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Dynamic routes demo */
+.home-users-demo {
+    padding: 40px 32px 64px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.home-users-subtitle {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+    margin: 0 0 20px;
+}
+
+.home-users-subtitle code {
+    background: rgba(62, 151, 185, 0.12);
+    color: #5cc4e8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.home-users-grid {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.home-user-link {
+    padding: 10px 24px;
+    background: rgba(62, 151, 185, 0.08);
+    border: 1px solid rgba(62, 151, 185, 0.15);
+    border-radius: 8px;
+    color: #5cc4e8;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.home-user-link:hover {
+    background: rgba(62, 151, 185, 0.16);
+    border-color: rgba(62, 151, 185, 0.3);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+    .home-hero-title {
+        font-size: 30px;
+    }
+
+    .home-hero {
+        padding: 40px 16px 32px;
+    }
+}

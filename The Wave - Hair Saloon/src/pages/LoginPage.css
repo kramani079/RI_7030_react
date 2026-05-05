@@ -1,0 +1,467 @@
+/* =====================================================
+   Login Page — Rameshwar Imitation Factory Mgmt System
+   Admin + Employee dual login with premium styling
+   ===================================================== */
+
+/* ── Top bar ─────────────────────────────────────── */
+.login-topbar {
+  height: 56px;
+  background: #3e97b9;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 0;
+}
+
+.brand-box {
+  background: #fff;
+  color: #1e4a62;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.top-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Four white pill-shaped nav placeholders */
+.nav-pills {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-pill {
+  width: 52px;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.nav-pill-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.nav-pill-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* White rounded search box */
+.search-box {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 13px;
+  color: #6b849a;
+  width: 140px;
+  outline: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Page background ─────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #eaf4f8;
+  margin: 0;
+  padding: 0;
+}
+
+.login-bg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px 90px;
+}
+
+/* ── Card ────────────────────────────────────────── */
+.login-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(30, 74, 98, 0.12);
+  max-width: 720px;
+  width: 100%;
+}
+
+/* ── Illustration ────────────────────────────────── */
+.illustration {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  min-height: 220px;
+}
+
+/* ── Form area ───────────────────────────────────── */
+.login-form-area {
+  width: 270px;
+  padding: 4px 10px 4px 24px;
+}
+
+/* ── Login Type Toggle ───────────────────────────── */
+.login-type-toggle {
+  display: flex;
+  gap: 0;
+  background: #f0f4f8;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 18px;
+}
+
+.login-type-btn {
+  flex: 1;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #6b849a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+}
+
+.login-type-btn:hover {
+  color: #1a3344;
+}
+
+.login-type-btn.active {
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.login-type-btn.admin-active {
+  background: #3e97b9;
+}
+
+.login-type-btn.employee-active {
+  background: #2dab6f;
+}
+
+.login-type-icon {
+  font-size: 15px;
+}
+
+/* ── Title & Subtitle ────────────────────────────── */
+.login-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a3344;
+  margin: 0 0 4px;
+}
+
+.login-subtitle {
+  font-size: 12px;
+  color: #7a8fa0;
+  margin: 0 0 16px;
+}
+
+/* ── Error Message ───────────────────────────────── */
+.login-error {
+  background: #fff0f0;
+  border: 1px solid #ffccc7;
+  color: #d32f2f;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+  animation: shakeError 0.35s ease;
+}
+
+.login-error-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@keyframes shakeError {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-6px);
+  }
+
+  40% {
+    transform: translateX(6px);
+  }
+
+  60% {
+    transform: translateX(-4px);
+  }
+
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* ── Form Fields ─────────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.field-label {
+  font-size: 12px;
+  color: #5a6e7f;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.field {
+  background: #efefef;
+  border: 1px solid #e2e8ed;
+  padding: 9px 12px;
+  border-radius: 6px;
+  outline: none;
+  font-size: 13px;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.field:focus {
+  border-color: #3e97b9;
+  background: #f5fbfe;
+}
+
+.field::placeholder {
+  color: #aab5be;
+}
+
+/* ── Password Field Wrapper ──────────────────────── */
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap .field {
+  padding-right: 40px;
+}
+
+.toggle-pass-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.toggle-pass-btn:hover {
+  opacity: 1;
+}
+
+/* ── Primary Button ──────────────────────────────── */
+.btn-primary {
+  width: 100%;
+  background: #3e97b9;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 6px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(62, 151, 185, 0.28);
+}
+
+.btn-primary:hover {
+  background: #2d85a5;
+  box-shadow: 0 6px 20px rgba(62, 151, 185, 0.38);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Employee login button — green variant */
+.btn-primary.btn-employee {
+  background: #2dab6f;
+  box-shadow: 0 4px 14px rgba(45, 171, 111, 0.28);
+}
+
+.btn-primary.btn-employee:hover {
+  background: #249a60;
+  box-shadow: 0 6px 20px rgba(45, 171, 111, 0.38);
+}
+
+/* ── Forgot Password Link ────────────────────────── */
+.forgot-link {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #3e97b9;
+  cursor: pointer;
+  text-align: right;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #2d85a5;
+  text-decoration: underline;
+}
+
+/* ── Forgot Password Panel ───────────────────────── */
+.forgot-panel {
+  margin-top: 14px;
+  padding: 16px;
+  background: #f5fbfe;
+  border: 1.5px solid #c5dde9;
+  border-radius: 10px;
+  animation: fpSlideIn 0.25s ease;
+}
+
+@keyframes fpSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.forgot-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a3344;
+  margin: 0 0 12px;
+}
+
+.forgot-form {
+  gap: 0;
+}
+
+.forgot-submit-btn {
+  margin-top: 10px;
+}
+
+/* ── Forgot Success Message ──────────────────────── */
+.fp-success {
+  background: #e6f8f0;
+  border: 1px solid #b8e5cf;
+  color: #1a7a4d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Email Sent Confirmation Box ─────────────────── */
+.fp-sent-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 10px;
+  animation: fpSlideIn 0.3s ease;
+}
+
+.fp-sent-icon {
+  font-size: 38px;
+  margin-bottom: 10px;
+  animation: fp-bounce 0.5s ease;
+}
+
+@keyframes fp-bounce {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.fp-sent-text {
+  font-size: 12.5px;
+  color: #3d566a;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 4px;
+}
+
+/* ── Register Link ───────────────────────────────── */
+.register-line {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.register-line a {
+  color: #3e97b9;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-line a:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .login-card {
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .login-form-area {
+    width: 100%;
+    padding: 0;
+  }
+
+  .illustration {
+    min-height: 160px;
+  }
+}

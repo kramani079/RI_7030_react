@@ -1,0 +1,263 @@
+/* =========================================================
+   Sales Page — The Wave Men's Saloon
+   ========================================================= */
+
+.sales-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 1100px;
+}
+
+/* ── Summary Cards ──────────────────────────────────── */
+.sales-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.sales-sum-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ssl-icon  { font-size: 28px; }
+.ssl-value { font-size: 22px; font-weight: 800; }
+.ssl-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.sales-sum-card--gold   .ssl-value { color: var(--accent-gold);   }
+.sales-sum-card--green  .ssl-value { color: var(--accent-green);  }
+.sales-sum-card--blue   .ssl-value { color: var(--accent-blue);   }
+.sales-sum-card--purple .ssl-value { color: var(--accent-purple); }
+
+/* ── Filters ────────────────────────────────────────── */
+.sales-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sales-search,
+.sales-date-filter {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sales-search { min-width: 260px; }
+.sales-date-filter { width: 160px; }
+
+.sales-search:focus,
+.sales-date-filter:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(212,168,67,0.12);
+}
+
+.filter-total {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Timeline ───────────────────────────────────────── */
+.sales-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sales-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 20px;
+  font-size: 15px;
+}
+
+/* ── Day Group ───────────────────────────────────────── */
+.day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.day-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.day-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+
+.day-badge--today {
+  background: rgba(212,168,67,0.12);
+  border-color: rgba(212,168,67,0.4);
+  color: var(--accent-gold);
+}
+
+.day-total {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Sale Cards ─────────────────────────────────────── */
+.day-sales {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sale-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.2s;
+}
+
+.sale-card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.sale-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sale-customer { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.sale-time     { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.sale-amount   { font-size: 22px; font-weight: 800; color: var(--accent-gold); flex-shrink: 0; }
+
+/* ── Items in sale card ─────────────────────────────── */
+.sale-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+}
+
+.sale-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  gap: 8px;
+}
+
+.sale-item-row span:first-child { flex: 1; }
+
+.sale-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.sale-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── New Sale Modal — item rows ─────────────────────── */
+.sale-items-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: var(--bg-input);
+}
+
+.sale-items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.sale-rows-head {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sale-row-inputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sale-row-inputs input {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 0;
+}
+
+.sale-row-inputs input:focus {
+  border-color: var(--accent-gold);
+}
+
+.sale-modal-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  .sales-summary { grid-template-columns: repeat(2, 1fr); }
+  .sale-row-inputs { flex-wrap: wrap; }
+}
+
+@media (max-width: 580px) {
+  .sales-summary    { grid-template-columns: 1fr 1fr; }
+  .sales-filters    { flex-direction: column; align-items: flex-start; }
+  .sales-search     { min-width: 0; width: 100%; }
+  .sale-card-top    { flex-direction: column; }
+  .sale-amount      { font-size: 18px; }
+}
